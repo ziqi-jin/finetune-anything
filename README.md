@@ -6,6 +6,11 @@
 
 ## Install
 
+```
+git clone https://github.com/ziqi-jin/finetune-anything.git
+
+```
+
 ## Supported Tasks
 
 ## Train
