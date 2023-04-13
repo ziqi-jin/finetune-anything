@@ -8,7 +8,7 @@ You need to supply the datasets for your tasks and the [supported task](#Support
 
 The code is coming soon.
 
-<img width="639" src="https://user-images.githubusercontent.com/67993288/230864865-db8810fd-9f0c-4f3e-81b1-8753b5121d03.png">
+<img width="640" src="https://user-images.githubusercontent.com/67993288/230864865-db8810fd-9f0c-4f3e-81b1-8753b5121d03.png">
 
 ## Install
 
