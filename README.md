@@ -15,6 +15,7 @@ The code is coming soon.
 ```
 git clone https://github.com/ziqi-jin/finetune-anything.git
 
+the complete code is comming soon.
 ```
 
 ## Supported Tasks
