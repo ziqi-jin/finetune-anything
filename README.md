@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The [Segment Anything Model (SAM)](https://github.com/facebookresearch/segment-anything) has revolutionized computer vision. Relying on fine-tuning of SAM will solve a large number of basic computer vision tasks. We are designing an easy-to-use tool for training fine-tuning models based on SAM.
+The [Segment Anything Model (SAM)](https://github.com/facebookresearch/segment-anything) has revolutionized computer vision. Relying on fine-tuning of SAM will solve a large number of basic computer vision tasks. We are designing a **class-aware one-stage** tool for training fine-tuning models based on SAM. 
 
 You need to supply the datasets for your tasks and the [supported task](#Supported-Tasks) name, this tool will help you to get a finetuned model for your task.
 
