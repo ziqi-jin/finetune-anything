@@ -57,7 +57,6 @@ class MaskDecoderNeck(nn.Module):
             activation(),
         )
 
-
     def forward(
             self,
             image_embeddings: torch.Tensor,
@@ -98,5 +97,3 @@ class MaskDecoderNeck(nn.Module):
         mask_tokens_out = hs[:, 1: (1 + self.num_mask_tokens), :]
 
         return src, iou_token_out, mask_tokens_out
-
-

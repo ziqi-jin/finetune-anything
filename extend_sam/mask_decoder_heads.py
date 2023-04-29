@@ -7,17 +7,16 @@ from typing import List, Tuple, Type
 from .segment_anything_ori.modeling.common import LayerNorm2d
 
 
-
 class OriHead(nn.Module):
 
     def __init__(
-        self,
-        *,
-        transformer_dim: int,
-        num_multimask_outputs: int = 3,
-        activation: Type[nn.Module] = nn.GELU,
-        iou_head_depth: int = 3,
-        iou_head_hidden_dim: int = 256,
+            self,
+            *,
+            transformer_dim: int,
+            num_multimask_outputs: int = 3,
+            activation: Type[nn.Module] = nn.GELU,
+            iou_head_depth: int = 3,
+            iou_head_hidden_dim: int = 256,
     ) -> None:
         """
         Predicts masks given an image and prompt embeddings, using a
@@ -60,11 +59,11 @@ class OriHead(nn.Module):
         )
 
     def forward(
-        self,
-        src: torch.Tensor,
-        iou_token_out: torch.Tensor,
-        mask_tokens_out: torch.Tensor,
-        multimask_output: bool,
+            self,
+            src: torch.Tensor,
+            iou_token_out: torch.Tensor,
+            mask_tokens_out: torch.Tensor,
+            multimask_output: bool,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Predict masks given image and prompt embeddings.
@@ -96,7 +95,6 @@ class OriHead(nn.Module):
         # Generate mask quality predictions
         iou_pred = self.iou_prediction_head(iou_token_out)
 
-
         # Select the correct mask or masks for outptu
         if multimask_output:
             mask_slice = slice(1, None)
@@ -112,13 +110,13 @@ class OriHead(nn.Module):
 class SemSegHead(nn.Module):
 
     def __init__(
-        self,
-        *,
-        transformer_dim: int,
-        num_multimask_outputs: int = 3,
-        activation: Type[nn.Module] = nn.GELU,
-        iou_head_depth: int = 3,
-        iou_head_hidden_dim: int = 256,
+            self,
+            *,
+            transformer_dim: int,
+            num_multimask_outputs: int = 3,
+            activation: Type[nn.Module] = nn.GELU,
+            iou_head_depth: int = 3,
+            iou_head_hidden_dim: int = 256,
     ) -> None:
         """
         Predicts masks given an image and prompt embeddings, using a
@@ -153,17 +151,16 @@ class SemSegHead(nn.Module):
         # TODO: the shape of MLP, or modified to conv.
         self.output_hypernetworks_mlps = MLP(transformer_dim, transformer_dim, transformer_dim // 8, 3)
 
-
         self.iou_prediction_head = MLP(
             transformer_dim, iou_head_hidden_dim, self.num_mask_tokens, iou_head_depth
         )
 
     def forward(
-        self,
-        src: torch.Tensor,
-        iou_token_out: torch.Tensor,
-        mask_tokens_out: torch.Tensor,
-        mask_scale=1,
+            self,
+            src: torch.Tensor,
+            iou_token_out: torch.Tensor,
+            mask_tokens_out: torch.Tensor,
+            mask_scale=1,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Predict masks given image and prompt embeddings.
@@ -187,11 +184,10 @@ class SemSegHead(nn.Module):
         upscaled_embedding = self.output_upscaling(src)
         hyper_in = self.output_hypernetworks_mlps(mask_tokens_out[:, mask_scale, :])
         b, c, h, w = upscaled_embedding.shape
-        masks = (hyper_in @ upscaled_embedding.view(b, c, h * w)).view(b, -1, h, w) # B N H W, N is num of category
+        masks = (hyper_in @ upscaled_embedding.view(b, c, h * w)).view(b, -1, h, w)  # B N H W, N is num of category
 
         # Generate mask quality predictions
-        iou_pred = self.iou_prediction_head(iou_token_out) # B N H W, N is num of category
-
+        iou_pred = self.iou_prediction_head(iou_token_out)  # B N H W, N is num of category
 
         return masks, iou_pred
 
@@ -200,12 +196,12 @@ class SemSegHead(nn.Module):
 # https://github.com/facebookresearch/MaskFormer/blob/main/mask_former/modeling/transformer/transformer_predictor.py # noqa
 class MLP(nn.Module):
     def __init__(
-        self,
-        input_dim: int,
-        hidden_dim: int,
-        output_dim: int,
-        num_layers: int,
-        sigmoid_output: bool = False,
+            self,
+            input_dim: int,
+            hidden_dim: int,
+            output_dim: int,
+            num_layers: int,
+            sigmoid_output: bool = False,
     ) -> None:
         super().__init__()
         self.num_layers = num_layers
