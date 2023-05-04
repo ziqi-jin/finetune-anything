@@ -1,5 +1,5 @@
 import torch.nn as nn
-name_dict = {'ce_loss': nn.CrossEntropyLoss}
+name_dict = {'ce_loss': nn.CrossEntropyLoss, 'multi_label_soft_margin': nn.MultiLabelSoftMarginLoss}
 def get_losses(loss_names):
     loss_dict = {}
     for name in loss_names:
