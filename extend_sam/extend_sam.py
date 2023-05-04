@@ -20,3 +20,7 @@ class BaseExtendSam(nn.module):
         prompt_embedding = self.prompt_adapter()
         outputs = self.mask_adapter(x, prompt_embedding)
         return outputs
+
+class SemanticSam(BaseExtendSam):
+    def __init__(self):
+        pass
