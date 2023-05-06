@@ -7,7 +7,7 @@ from .mask_decoder_adapter import BaseMaskDecodeAdapter
 from .prompt_encoder_adapter import BasePromptEncodeAdapter
 
 
-class BaseExtendSam(nn.module):
+class BaseExtendSam(nn.Module):
 
     def __init__(self, ckpt_path=None, fix_img_en=False, fix_promt_en=False, fix_mask_de=False):
         ori_sam = sam_model_registry['default'](ckpt_path)
