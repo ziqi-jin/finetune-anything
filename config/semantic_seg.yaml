@@ -1,0 +1,12 @@
+train:
+  dataset_name: 'voc2012'
+  bs: 16
+  num_workers: 8
+  drop_last: True
+  loss_names: [ 'loss1','loss2' ]
+  sam_name: 'sem_sam'
+  opt_params:
+    lr_list: [ 0.1, 0.0001 ]
+    group_keys: [ [ '','' ],[ '','' ] ]
+    wd_list: [0.0, 4e-5]
+  opt_name: 'cosine'

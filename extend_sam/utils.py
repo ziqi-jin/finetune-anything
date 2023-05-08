@@ -1,3 +1,6 @@
+'''
+@copyright ziqi-jin
+'''
 def fix_params(model):
     for name, param in model.named_parameters():
         param.requires_grad = False
@@ -18,7 +21,7 @@ def get_opt_pamams(model, lr_list, group_keys, wd_list):
     '''
     assert len(lr_list) == len(group_keys), "lr_list should has the same length as group_keys"
     assert len(lr_list) == len(wd_list), "lr_list should has the same length as wd_list"
-    params_group = [[] for i in range(len(lr_list))]
+    params_group = [[] for _ in range(len(lr_list))]
     for name, value in model.named_parameters():
         for index, g_key in enumerate(group_keys):
             if name in g_key:
