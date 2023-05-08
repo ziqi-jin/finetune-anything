@@ -41,6 +41,7 @@ class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
     def forward(self, x, scale=1):
         masks, iou_pred = self.decoder_head(self.decoder_neck(x), scale=scale)
         return masks, iou_pred
+
     def pair_params(self, target_model: nn.Module):
         for name, value in self.ori_sam_mask_decoder.named_parameters():
             if name in target_model.state_dict().keys():
