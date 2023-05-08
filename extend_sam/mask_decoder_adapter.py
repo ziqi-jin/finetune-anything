@@ -43,10 +43,10 @@ class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
         return masks, iou_pred
 
     def pair_params(self, target_model: nn.Module):
-        for name, value in self.ori_sam_mask_decoder.named_parameters():
-            if name in target_model.state_dict().keys():
-                target_model[name] = value
-
+        src_dict = self.ori_sam_mask_decoder.state_dict()
+        for name, value in target_model.named_parameters():
+            if name in src_dict:
+                value.data.copy_(src_dict[name].data)
 
 # Lightly adapted from
 # https://github.com/facebookresearch/MaskFormer/blob/main/mask_former/modeling/transformer/transformer_predictor.py # noqa
