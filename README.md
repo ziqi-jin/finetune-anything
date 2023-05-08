@@ -14,7 +14,8 @@ You need to supply the datasets for your tasks and the [supported task](#Support
 
 ```
 git clone https://github.com/ziqi-jin/finetune-anything.git
-
+cd finetune-anything
+pip install -r requirements.txt
 the complete code is comming soon.
 ```
 
