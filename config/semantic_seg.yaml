@@ -1,12 +1,16 @@
 train:
-  dataset_name: 'voc2012'
+  dataset_name: 'voc_sem'
   bs: 16
   num_workers: 8
   drop_last: True
-  loss_names: [ 'loss1','loss2' ]
+  loss_names: [ 'ce_loss','multi_label_soft_margin' ]
+  loss_weight: [ 0.1, 0.1 ]
   sam_name: 'sem_sam'
   opt_params:
     lr_list: [ 0.1, 0.0001 ]
     group_keys: [ [ '','' ],[ '','' ] ]
-    wd_list: [0.0, 4e-5]
+    wd_list: [ 0.0, 4e-5 ]
   opt_name: 'cosine'
+  fix_img_encoder: True
+  fix_prompt_encoder: True
+  fix_mask_decoder: True

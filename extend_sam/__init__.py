@@ -1,13 +1,16 @@
 # copyright ziqi-jin
 import torch
 from .extend_sam import BaseExtendSam, SemanticSam
-from .runner import BaseRunner
+from .runner import BaseRunner, SemRunner
 from .optimizer import BaseOptimizer
 from .scheduler import WarmupMultiStepLR
 from .utils import get_opt_pamams
+
 AVAI_SCH = ["single_step", "multi_step", "warmup_multi_step", "cosine", "linear"]
 AVAI_MODEL = {'base_sam': BaseExtendSam, 'sem_sam': SemanticSam}
 AVAI_OPT = {'base_opt': BaseOptimizer}
+AVAI_RUNNER = {'base_runner': BaseRunner, 'sem_runner': SemRunner}
+
 
 def get_model(model_name, **kwargs):
     if model_name not in AVAI_MODEL:
@@ -19,6 +22,12 @@ def get_optimizer(opt_name, **kwargs):
     if opt_name not in AVAI_OPT:
         print('not supported optimizer name, please implement it first.')
     return AVAI_OPT[opt_name](kwargs)
+
+
+def get_runner(runner_name):
+    if runner_name not in AVAI_RUNNER:
+        print('not supported runner name, please implement it first.')
+    return AVAI_RUNNER[runner_name]
 
 
 def get_scheduler(
