@@ -1,6 +1,8 @@
 import torch.nn as nn
+from .losses import CustormLoss
 
-name_dict = {'ce_loss': nn.CrossEntropyLoss, 'multi_label_soft_margin': nn.MultiLabelSoftMarginLoss}
+name_dict = {'ce_loss': nn.CrossEntropyLoss, 'multi_label_soft_margin': nn.MultiLabelSoftMarginLoss,
+             'test_custom': CustormLoss}
 
 
 def get_losses(loss_names):
