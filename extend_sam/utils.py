@@ -1,6 +1,7 @@
 '''
 @copyright ziqi-jin
 '''
+import time
 
 
 def fix_params(model):
@@ -29,6 +30,31 @@ def get_opt_pamams(model, lr_list, group_keys, wd_list):
             if name in g_key:
                 params_group[index].append(value)
     return [{'params': params_group[i], 'lr': lr_list[i], 'weight_decay': wd_list[i]} for i in range(len(lr_list))]
+
+
+class Timer:
+
+    def __init__(self):
+        self.start_time = 0.0
+        self.end_time = 0.0
+
+        self.start()
+
+    def start(self):
+        self.start_time = time.time()
+
+    def end(self, ms=False, clear=False):
+        self.end_time = time.time()
+
+        if ms:
+            duration = int((self.end_time - self.start_time) * 1000)
+        else:
+            duration = int(self.end_time - self.start_time)
+
+        if clear:
+            self.start()
+
+        return duration
 
 
 class Average_Meter:
