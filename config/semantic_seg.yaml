@@ -1,4 +1,5 @@
 train:
+  experiment_name: 'semantic_sam'
   dataset_name: 'voc_sem'
   bs: 16
   num_workers: 8
@@ -14,3 +15,10 @@ train:
   fix_img_encoder: True
   fix_prompt_encoder: True
   fix_mask_decoder: True
+  max_iter: 100
+  log_iter: 10
+  eval_iter: 20
+  log_folder: './log'
+  model_folder: './model'
+test:
+  need_test: True
