@@ -1,13 +1,12 @@
 '''
 @copyright ziqi-jin
 '''
-from extend_sam import BaseExtendSam
 import argparse
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader
 from datasets import get_dataset
 from losses import get_losses
-from extend_sam import get_model, get_optimizer, get_scheduler, BaseRunner, get_opt_pamams, get_runner
+from extend_sam import get_model, get_optimizer, get_scheduler, get_opt_pamams, get_runner
 
 supported_tasks = ['detection', 'semantic_seg', 'instance_seg']
 parser = argparse.ArgumentParser()
@@ -19,6 +18,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = OmegaConf.load(args.cfg)
     train_cfg = config.train
+    test_cfg = config.test
+
     task_name = args.task_name
     if task_name not in supported_tasks:
         print("Please input the supported task name.")
@@ -35,3 +36,5 @@ if __name__ == '__main__':
     runner = get_runner(train_cfg.runner_name)(model, optimizer, losses, data_loader, scheduler)
     # train_step
     runner.train(train_cfg)
+    if test_cfg.need_test:
+        runner.test(test_cfg)

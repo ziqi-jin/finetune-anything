@@ -2,6 +2,7 @@
 @copyright ziqi-jin
 '''
 import time
+import numpy as np
 
 
 def fix_params(model):
@@ -70,14 +71,20 @@ class Average_Meter:
         if keys is None:
             keys = self.keys
 
-        dataset = [float(np.mean(self.data_dic[key])) for key in keys]
+        dataset = {}
+        for key in keys:
+            dataset[key] = float(np.mean(self.data_dic[key]))
+
         if clear:
             self.clear()
-
-        if len(dataset) == 1:
-            dataset = dataset[0]
 
         return dataset
 
     def clear(self):
         self.data_dic = {key: [] for key in self.keys}
+
+
+def print_and_save_log(message, path):
+    print(message)
+    with open(path, 'a+') as f:
+        f.write(message + '\n')
