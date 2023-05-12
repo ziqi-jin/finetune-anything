@@ -18,14 +18,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = OmegaConf.load(args.cfg)
     train_cfg = config.train
+    val_cfg = config.val_cfg
     test_cfg = config.test
 
     task_name = args.task_name
     if task_name not in supported_tasks:
         print("Please input the supported task name.")
-    dataset = get_dataset(train_cfg.dataset_name, args.data_dir)
-    data_loader = DataLoader(dataset, batch_size=train_cfg.bs, shuffle=True, num_workers=train_cfg.num_workers,
-                             drop_last=train_cfg.drop_last)
+    train_dataset = get_dataset(train_cfg.dataset_name, args.data_dir)
+    train_loader = DataLoader(train_dataset, batch_size=train_cfg.bs, shuffle=True, num_workers=train_cfg.num_workers,
+                              drop_last=train_cfg.drop_last)
+    val_dataset = get_dataset(val_cfg.dataset_name, args.data_dir)
+    val_loader = DataLoader(val_dataset, batch_size=val_cfg.bs, shuffle=False, num_workers=val_cfg.num_workers,
+                            drop_last=val_cfg.drop_last)
     losses = get_losses(loss_names=train_cfg.loss_names)
     # according the model name to get the adapted model
     model = get_model(model_name=train_cfg.sam_name)
@@ -33,7 +37,7 @@ if __name__ == '__main__':
                                 wd_list=train_cfg.wd_list)
     optimizer = get_optimizer(opt_name=train_cfg.opt_name)
     scheduler = get_scheduler()
-    runner = get_runner(train_cfg.runner_name)(model, optimizer, losses, data_loader, scheduler)
+    runner = get_runner(train_cfg.runner_name)(model, optimizer, losses, train_loader, val_loader, scheduler)
     # train_step
     runner.train(train_cfg)
     if test_cfg.need_test:
