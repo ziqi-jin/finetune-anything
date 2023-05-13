@@ -24,10 +24,10 @@ if __name__ == '__main__':
     task_name = args.task_name
     if task_name not in supported_tasks:
         print("Please input the supported task name.")
-    train_dataset = get_dataset(train_cfg.dataset_name, args.data_dir)
+    train_dataset = get_dataset(args.data_dir, 'train', train_cfg)
     train_loader = DataLoader(train_dataset, batch_size=train_cfg.bs, shuffle=True, num_workers=train_cfg.num_workers,
                               drop_last=train_cfg.drop_last)
-    val_dataset = get_dataset(val_cfg.dataset_name, args.data_dir)
+    val_dataset = get_dataset(args.data_dir, 'val', val_cfg)
     val_loader = DataLoader(val_dataset, batch_size=val_cfg.bs, shuffle=False, num_workers=val_cfg.num_workers,
                             drop_last=val_cfg.drop_last)
     losses = get_losses(loss_names=train_cfg.loss_names)

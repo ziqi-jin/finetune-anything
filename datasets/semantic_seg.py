@@ -15,7 +15,7 @@ class BaseSemanticDataset(Dataset):
 
 
 class VOCSemanticDataset(Dataset):
-    def __init__(self, root_dir, domain, with_id=False, with_mask=False):
+    def __init__(self, root_dir, domain, transform,with_id=False, with_mask=False):
         self.root_dir = root_dir
 
         self.image_dir = self.root_dir + 'JPEGImages/'
@@ -23,7 +23,7 @@ class VOCSemanticDataset(Dataset):
         self.mask_dir = self.root_dir + 'SegmentationClass/'
 
         self.image_id_list = [image_id.strip() for image_id in open('./data/%s.txt' % domain).readlines()]
-
+        self.transform = transform
         self.with_id = with_id
         self.with_mask = with_mask
 

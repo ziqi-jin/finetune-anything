@@ -20,5 +20,6 @@ train:
   eval_iter: 20
   log_folder: './log'
   model_folder: './model'
+  transfomrs: [ '','' ]
 test:
   need_test: True
