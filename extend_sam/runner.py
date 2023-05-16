@@ -21,19 +21,24 @@ class SemRunner(BaseRunner):
     # def __init__(self, **kwargs):
     #     super().__init__(kwargs)
 
+    def __init__(self, model, optimizer, losses, train_loader, val_loader, scheduler):
+        super().__init__(model, optimizer, losses, train_loader, val_loader, scheduler)
+        self.exist_status = ['train', 'eval', 'test']
+
     def train(self, cfg):
+        # initial identify
         train_meter = Average_Meter(list(self.losses.keys()) + ['total_loss'])
         train_iterator = Iterator(self.train_loader)
-        self.exist_status = ['train', 'eval', 'test']
         best_valid_mIoU = -1
         model_path = "{cfg.model_folder}/{cfg.experiment_name}/model.pth".format(cfg=cfg)
         log_path = "{cfg.log_folder}/{cfg.experiment_name}/log_file.txt".format(cfg=cfg)
-
         writer = None
         if cfg.use_tensorboard is True:
-            tensorborad_dir = "{cfg.tensorboard_folder}/{cfg.experiment_name}/tensorboard/".format(cfg=cfg)
+            tensorboard_dir = "{cfg.tensorboard_folder}/{cfg.experiment_name}/tensorboard/".format(cfg=cfg)
             from torch.utils.tensorboard import SummaryWriter
-            writer = SummaryWriter(tensorborad_dir)
+            writer = SummaryWriter(tensorboard_dir)
+
+        # train
         for iteration in range(cfg.max_iter):
             images, labels = train_iterator.get()
             images, labels = images.cuda(), labels.cuda()
@@ -52,10 +57,11 @@ class SemRunner(BaseRunner):
             loss_dict['total_loss'] = total_loss.item()
             train_meter.add(loss_dict)
 
+            # log
             if (iteration + 1) % cfg.log_iter == 0:
                 write_log(log_path=log_path, log_data=train_meter.get(clear=True), status=self.exist_status[0],
                           writer=writer)
-
+            # eval
             if (iteration + 1) % cfg.eval_iter == 0:
                 mIoU, _ = self._eval()
                 if best_valid_mIoU == -1 or best_valid_mIoU < mIoU:
@@ -65,7 +71,7 @@ class SemRunner(BaseRunner):
                     log_data = {'mIoU': mIoU, 'best_valid_mIoU': best_valid_mIoU}
                     write_log(log_path=log_path, log_data=log_data, status=self.exist_status[1], writer=writer)
         # final process
-        save_model(self.model, model_path,is_final=True)
+        save_model(self.model, model_path, is_final=True)
         if writer is not None:
             writer.close()
 
