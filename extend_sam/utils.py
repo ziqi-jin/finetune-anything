@@ -3,6 +3,7 @@
 '''
 import time
 import numpy as np
+import torch
 
 
 def fix_params(model):
@@ -90,7 +91,7 @@ def print_and_save_log(message, path):
         f.write(message + '\n')
 
 
-class mIOUOnline:
+class mIoUOnline:
     def __init__(self, class_names):
         self.class_names = ['background'] + class_names
         self.class_num = len(self.class_names)
@@ -166,3 +167,33 @@ class mIOUOnline:
             self.TP.append(0)
             self.P.append(0)
             self.T.append(0)
+
+
+def get_numpy_from_tensor(tensor):
+    return tensor.cpu().detach().numpy()
+
+
+def save_model(model, model_path, parallel=False, is_final = False):
+    if is_final:
+        model_path_split = model_path.split('.')
+        model_path = model_path_split[0] + "_final.pth"
+    if parallel:
+        torch.save(model.module.state_dict(), model_path)
+    else:
+        torch.save(model.state_dict(), model_path)
+
+
+def write_log(iteration, log_path, log_data, status, writer, timer):
+    log_data['iteration'] = iteration
+    log_data['time'] = timer.end(clear=True)
+    message = "iteration : {val}, ".format(val=log_data['iteration'])
+    for key, value in log_data.items():
+        if key == 'iteration':
+            continue
+        message += "{key} : {val}, ".format(key=key, val=value)
+    message = message[:-2] + '\n'
+    print_and_save_log(message, log_path)
+    # visualize
+    if writer is not None:
+        for key, value in log_data.items():
+            writer.add_scalar("{status}/{key}".format(status=status, key=key), value, iteration)

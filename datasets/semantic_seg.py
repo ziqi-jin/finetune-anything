@@ -8,14 +8,16 @@ class BaseSemanticDataset(Dataset):
     image: input image
     label: semantic mask with classes
     '''
+
     def __init__(self):
         pass
+
     def __getitem__(self, item):
         pass
 
 
 class VOCSemanticDataset(Dataset):
-    def __init__(self, root_dir, domain, transform,with_id=False, with_mask=False):
+    def __init__(self, root_dir, domain, transform, with_id=False, with_mask=False):
         self.root_dir = root_dir
 
         self.image_dir = self.root_dir + 'JPEGImages/'
@@ -26,6 +28,10 @@ class VOCSemanticDataset(Dataset):
         self.transform = transform
         self.with_id = with_id
         self.with_mask = with_mask
+        self.class_names = ['bicycle', 'bird', 'boat', 'bottle',
+                            'bus', 'car', 'cat', 'chair', 'cow',
+                            'diningtable', 'dog', 'horse', 'motorbike', 'person',
+                            'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
 
     def __len__(self):
         return len(self.image_id_list)

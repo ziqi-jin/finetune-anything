@@ -1,6 +1,9 @@
 from datasets import Iterator
-from .utils import Average_Meter, Timer, print_and_save_log
+from .utils import Average_Meter, Timer, print_and_save_log, mIoUOnline, get_numpy_from_tensor, save_model, write_log
 import torch
+from torch.utils.data import DataLoader
+import cv2
+
 
 class BaseRunner():
     def __init__(self, model, optimizer, losses, train_loader, val_loader, scheduler):
@@ -22,10 +25,13 @@ class SemRunner(BaseRunner):
         train_meter = Average_Meter(list(self.losses.keys()) + ['total_loss'])
         train_iterator = Iterator(self.train_loader)
         self.exist_status = ['train', 'eval', 'test']
-        model_path = "{name.model_folder}/{name.experiment_name}/model.pth".format(name=cfg)
+        best_valid_mIoU = -1
+        model_path = "{cfg.model_folder}/{cfg.experiment_name}/model.pth".format(cfg=cfg)
+        log_path = "{cfg.log_folder}/{cfg.experiment_name}/log_file.txt".format(cfg=cfg)
+
         writer = None
         if cfg.use_tensorboard is True:
-            tensorborad_dir = "{name.tensorboard_folder}/{name.experiment_name}/tensorboard/".format(name=cfg)
+            tensorborad_dir = "{cfg.tensorboard_folder}/{cfg.experiment_name}/tensorboard/".format(cfg=cfg)
             from torch.utils.tensorboard import SummaryWriter
             writer = SummaryWriter(tensorborad_dir)
         for iteration in range(cfg.max_iter):
@@ -47,37 +53,43 @@ class SemRunner(BaseRunner):
             train_meter.add(loss_dict)
 
             if (iteration + 1) % cfg.log_iter == 0:
-                self._write_log(cfg=cfg, train_meter=train_meter, status=self.exist_status[0], writer=writer)
+                write_log(log_path=log_path, log_data=train_meter.get(clear=True), status=self.exist_status[0],
+                          writer=writer)
 
             if (iteration + 1) % cfg.eval_iter == 0:
-                self._eval()
-
-    def _write_log(self, iteration, cfg, train_meter: Average_Meter, status, writer):
-        log_data = train_meter.get(clear=True)
-        log_data['iteration'] = iteration
-        log_data['time'] = self.train_timer.end(clear=True)
-        log_path = "{name.log_folder}/{name.experiment_name}/log_file.txt".format(name=cfg)
-        message = "iteration : {val}, ".format(val=log_data['iteration'])
-        for key, value in log_data.items():
-            if key == 'iteration':
-                continue
-            message += "{key} : {val}, ".format(key=key, val=value)
-        message = message[:-2] + '\n'
-        print_and_save_log(message, log_path)
-        # visualize
+                mIoU, _ = self._eval()
+                if best_valid_mIoU == -1 or best_valid_mIoU < mIoU:
+                    best_valid_mIoU = mIoU
+                    save_model(self.model, model_path)
+                    print_and_save_log("saved model in {model_path}".format(model_path=model_path))
+                    log_data = {'mIoU': mIoU, 'best_valid_mIoU': best_valid_mIoU}
+                    write_log(log_path=log_path, log_data=log_data, status=self.exist_status[1], writer=writer)
+        # final process
+        save_model(self.model, model_path,is_final=True)
         if writer is not None:
-            for key, value in log_data.items():
-                writer.add_scalar("{status}/{key}".format(status=status, key=key), value, iteration)
+            writer.close()
 
     def test(self):
         pass
 
     def _eval(self):
         self.model.eval()
-        self.eval_timer.tik()
+        self.eval_timer.start()
+        class_names = self.val_loader.dataset.class_names
+        eval_metric = mIoUOnline(class_names=class_names)
         with torch.no_grad():
             for index, (images, labels) in enumerate(self.val_loader):
-                pass
+                images = images.cuda()
+                labels = labels.cuda()
+                masks_pred, iou_pred = self.model(images)
+                predictions = torch.argmax(masks_pred, dim=1)
+                for batch_index in range(images.size()[0]):
+                    pred_mask = get_numpy_from_tensor(predictions[batch_index])
+                    gt_mask = get_numpy_from_tensor(labels[batch_index])
 
+                    h, w = pred_mask.shape
+                    gt_mask = cv2.resize(gt_mask, (w, h), interpolation=cv2.INTER_NEAREST)
+
+                    eval_metric.add(pred_mask, gt_mask)
         self.model.train()
-        pass
+        return eval_metric.get(clear=True)
