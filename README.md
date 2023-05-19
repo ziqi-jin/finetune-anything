@@ -6,7 +6,7 @@ The [Segment Anything Model (SAM)](https://github.com/facebookresearch/segment-a
 
 You need to supply the datasets for your tasks and the [supported task](#Supported-Tasks) name, this tool will help you to get a finetuned model for your task.
 
-**The complete code is coming soon.**
+**Now you can not run the code yet. I am working on it and the complete code is coming soon.**
 
 <img width="640" src="https://user-images.githubusercontent.com/67993288/230864865-db8810fd-9f0c-4f3e-81b1-8753b5121d03.png">
 
