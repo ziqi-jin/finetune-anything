@@ -11,9 +11,9 @@ class BaseExtendSam(nn.Module):
 
     def __init__(self, ckpt_path=None, fix_img_en=False, fix_promt_en=False, fix_mask_de=False):
         self.ori_sam = sam_model_registry['default'](ckpt_path)
-        self.img_adapter = BaseImgEncodeAdapter(ori_sam, fix=fix_img_en)
-        self.prompt_adapter = BasePromptEncodeAdapter(ori_sam, fix=fix_promt_en)
-        self.mask_adapter = BaseMaskDecoderAdapter(ori_sam, fix=fix_mask_de)
+        self.img_adapter = BaseImgEncodeAdapter(self.ori_sam, fix=fix_img_en)
+        self.prompt_adapter = BasePromptEncodeAdapter(self.ori_sam, fix=fix_promt_en)
+        self.mask_adapter = BaseMaskDecoderAdapter(self.ori_sam, fix=fix_mask_de)
 
     def forword(self, img):
         x = self.img_adapter(img)
