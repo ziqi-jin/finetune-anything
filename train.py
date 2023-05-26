@@ -10,20 +10,24 @@ from extend_sam import get_model, get_optimizer, get_scheduler, get_opt_pamams, 
 
 supported_tasks = ['detection', 'semantic_seg', 'instance_seg']
 parser = argparse.ArgumentParser()
-parser.add_argument('--task_name', default='instance_seg', type=str)
+parser.add_argument('--task_name', default='semantic_seg', type=str)
 parser.add_argument('--data_dir', type=str, required=True)
-parser.add_argument('--cfg', default='./config/coco_instance.yaml', type=str)
+parser.add_argument('--cfg', default='', type=str)
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    config = OmegaConf.load(args.cfg)
+    task_name = args.task_name
+
+    if args.cfg is not None:
+        config = OmegaConf.load(args.cfg)
+    else:
+        assert task_name in supported_tasks, "Please input the supported task name."
+        config = OmegaConf.load("./config/{task_name}.yaml".format(task_name=args.task_name))
+
     train_cfg = config.train
-    val_cfg = config.val_cfg
+    val_cfg = config.val
     test_cfg = config.test
 
-    task_name = args.task_name
-    if task_name not in supported_tasks:
-        print("Please input the supported task name.")
     train_dataset = get_dataset(args.data_dir, 'train', train_cfg)
     train_loader = DataLoader(train_dataset, batch_size=train_cfg.bs, shuffle=True, num_workers=train_cfg.num_workers,
                               drop_last=train_cfg.drop_last)
