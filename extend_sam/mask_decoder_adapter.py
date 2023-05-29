@@ -12,6 +12,15 @@ from .mask_decoder_neck import MaskDecoderNeck
 
 
 class BaseMaskDecoderAdapter(MaskDecoder):
+    '''
+      multimask_output (bool): If true, the model will return three masks.
+    For ambiguous input prompts (such as a single click), this will often
+    produce better masks than a single prediction. If only a single
+    mask is needed, the model's predicted quality score can be used
+    to select the best mask. For non-ambiguous prompts, such as multiple
+    input prompts, multimask_output=False can give better results.
+    '''
+
     # is fix and load params
     def __init__(self, ori_sam: Sam, fix=False):
         super(BaseMaskDecoderAdapter, self).__init__()
@@ -19,9 +28,13 @@ class BaseMaskDecoderAdapter(MaskDecoder):
         if fix:
             fix_params(self.ori_sam_mask_decoder)  # move to runner to implement
 
-    def forward(self, x):
-        x = self.ori_sam_mask_decoder(x)
-        return x
+    def forward(self, image_embeddings, image_pe, sparse_embeddings, dense_embeddings, multimask_output=True):
+        low_res_masks, iou_predictions = self.ori_sam_mask_decoder(image_embeddings=image_embeddings,
+                                                                   image_pe=self.prompt_encoder.get_dense_pe(),
+                                                                   sparse_prompt_embeddings=sparse_embeddings,
+                                                                   dense_prompt_embeddings=dense_embeddings,
+                                                                   multimask_output=multimask_output, )
+        return low_res_masks, iou_predictions
 
 
 class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
@@ -38,8 +51,13 @@ class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
         self.pair_params(self.decoder_neck)
         self.pair_params(self.decoder_head)
 
-    def forward(self, x, scale=1):
-        masks, iou_pred = self.decoder_head(self.decoder_neck(x), scale=scale)
+    def forward(self, image_embeddings, image_pe, sparse_embeddings, dense_embeddings, multimask_output=True, scale=1):
+        src, iou_token_out, mask_tokens_out = self.decoder_neck(image_embeddings=image_embeddings,
+                                                                image_pe=self.prompt_encoder.get_dense_pe(),
+                                                                sparse_prompt_embeddings=sparse_embeddings,
+                                                                dense_prompt_embeddings=dense_embeddings,
+                                                                multimask_output=multimask_output, )
+        masks, iou_pred = self.decoder_head(src, iou_token_out, mask_tokens_out, scale=scale)
         return masks, iou_pred
 
     def pair_params(self, target_model: nn.Module):
