@@ -7,11 +7,12 @@ name_dict = {'base_det': BaseDetectionDataset, 'base_ins': BaseInstanceDataset, 
 
 
 def get_dataset(path, mode, cfg):
+
     name = cfg.dataset_name
     if name not in name_dict:
         print('not supported dataset name, please implement it first.')
     # TODO customized dataset params:
-    # example:
+    # customized dataset params example:
     # if xxx:
     #   param1 = cfg.xxx
     #   param2 = cfg.xxx

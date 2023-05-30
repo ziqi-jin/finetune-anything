@@ -1,6 +1,6 @@
 import torchvision.transforms as T
 
-AVIAL_TRANSFORM = {'resize': T.Resize}
+AVIAL_TRANSFORM = {'resize': T.Resize, 'to_tensor': T.ToTensor}
 
 
 def get_transforms(T_names):

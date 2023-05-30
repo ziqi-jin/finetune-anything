@@ -23,7 +23,8 @@ class BaseMaskDecoderAdapter(MaskDecoder):
 
     # is fix and load params
     def __init__(self, ori_sam: Sam, fix=False):
-        super(BaseMaskDecoderAdapter, self).__init__()
+        super(BaseMaskDecoderAdapter, self).__init__(transformer_dim=ori_sam.mask_decoder.transformer_dim,
+                                                     transformer=ori_sam.mask_decoder.transformer)
         self.ori_sam_mask_decoder = ori_sam.mask_decoder
         if fix:
             fix_params(self.ori_sam_mask_decoder)  # move to runner to implement
@@ -39,7 +40,7 @@ class BaseMaskDecoderAdapter(MaskDecoder):
 
 class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
     def __init__(self, ori_sam: Sam, fix=False):
-        super.__init__(ori_sam, fix)
+        super(SemMaskDecoderAdapter, self).__init__(ori_sam, fix)
         self.decoder_neck = MaskDecoderNeck(transformer_dim=self.ori_sam_mask_decoder.transformer_dim,
                                             transformer=self.ori_sam_mask_decoder.transformer,
                                             num_multimask_outputs=self.ori_sam_mask_decoder.num_multimask_outputs)

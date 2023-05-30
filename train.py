@@ -12,12 +12,11 @@ supported_tasks = ['detection', 'semantic_seg', 'instance_seg']
 parser = argparse.ArgumentParser()
 parser.add_argument('--task_name', default='semantic_seg', type=str)
 parser.add_argument('--data_dir', type=str, required=True)
-parser.add_argument('--cfg', default='', type=str)
+parser.add_argument('--cfg', default=None, type=str)
 
 if __name__ == '__main__':
     args = parser.parse_args()
     task_name = args.task_name
-
     if args.cfg is not None:
         config = OmegaConf.load(args.cfg)
     else:
@@ -36,11 +35,11 @@ if __name__ == '__main__':
                             drop_last=val_cfg.drop_last)
     losses = get_losses(loss_names=train_cfg.loss_names)
     # according the model name to get the adapted model
-    model = get_model(model_name=train_cfg.sam_name)
-    opt_params = get_opt_pamams(model, lr_list=train_cfg.lr_list, group_keys=train_cfg.group_keys,
-                                wd_list=train_cfg.wd_list)
-    optimizer = get_optimizer(opt_name=train_cfg.opt_name, opt_params=opt_params, lr=train_cfg.lr_default,
-                              momentum=train_cfg.momentum, weight_decay=train_cfg.wd_default)
+    model = get_model(model_name=train_cfg.sam_name, ckpt_path=train_cfg.ckpt_path)
+    opt_params = get_opt_pamams(model, lr_list=train_cfg.opt_params.lr_list, group_keys=train_cfg.opt_params.group_keys,
+                                wd_list=train_cfg.opt_params.wd_list)
+    optimizer = get_optimizer(opt_name=train_cfg.opt_name, params=opt_params, lr=train_cfg.opt_params.lr_default,
+                              momentum=train_cfg.opt_params.momentum, weight_decay=train_cfg.opt_params.wd_default)
     scheduler = get_scheduler(optimizer=optimizer, lr_scheduler=train_cfg.scheduler_name)
     runner = get_runner(train_cfg.runner_name)(model, optimizer, losses, train_loader, val_loader, scheduler)
     # train_step

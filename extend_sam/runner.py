@@ -1,7 +1,6 @@
 from datasets import Iterator
 from .utils import Average_Meter, Timer, print_and_save_log, mIoUOnline, get_numpy_from_tensor, save_model, write_log
 import torch
-from torch.utils.data import DataLoader
 import cv2
 
 

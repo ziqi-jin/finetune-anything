@@ -8,20 +8,20 @@ from .utils import get_opt_pamams
 
 AVAI_SCH = ["single_step", "multi_step", "warmup_multi_step", "cosine", "linear"]
 AVAI_MODEL = {'base_sam': BaseExtendSam, 'sem_sam': SemanticSam}
-AVAI_OPT = {'base_opt': BaseOptimizer, 'sgd': torch.optim.SGD, 'adam': torch.optim.adam}
+AVAI_OPT = {'base_opt': BaseOptimizer, 'sgd': torch.optim.SGD, 'adam': torch.optim.Adam}
 AVAI_RUNNER = {'base_runner': BaseRunner, 'sem_runner': SemRunner}
 
 
 def get_model(model_name, **kwargs):
     if model_name not in AVAI_MODEL:
         print('not supported model name, please implement it first.')
-    return AVAI_MODEL[model_name](kwargs)
+    return AVAI_MODEL[model_name](**kwargs)
 
 
 def get_optimizer(opt_name, **kwargs):
     if opt_name not in AVAI_OPT:
         print('not supported optimizer name, please implement it first.')
-    return AVAI_OPT[opt_name](kwargs)
+    return AVAI_OPT[opt_name](**kwargs)
 
 
 def get_runner(runner_name):
