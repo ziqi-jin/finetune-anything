@@ -8,10 +8,14 @@ train:
   loss_weight: [ 0.1, 0.1 ]
   sam_name: 'sem_sam'
   opt_params:
+    lr_default: 0.1
+    wd_default: 1e-4
+    momentum: 0.9
     lr_list: [ 0.1, 0.0001 ]
     group_keys: [ [ '','' ],[ '','' ] ]
     wd_list: [ 0.0, 4e-5 ]
-  opt_name: 'cosine'
+  scheduler_name: 'cosine'
+  opt_name: 'sgd'
   fix_img_encoder: True
   fix_prompt_encoder: True
   fix_mask_decoder: True
