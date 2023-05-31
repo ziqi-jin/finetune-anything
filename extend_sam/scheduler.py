@@ -5,10 +5,10 @@ from bisect import bisect_right
 from typing import List
 
 import torch
-from torch.optim.lr_scheduler import LRScheduler
+from torch.optim.lr_scheduler import _LRScheduler
 
 
-class WarmupMultiStepLR(LRScheduler):
+class WarmupMultiStepLR(_LRScheduler):
     def __init__(
             self,
             optimizer: torch.optim.Optimizer,

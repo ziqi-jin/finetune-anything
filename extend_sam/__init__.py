@@ -15,7 +15,7 @@ AVAI_RUNNER = {'base_runner': BaseRunner, 'sem_runner': SemRunner}
 def get_model(model_name, **kwargs):
     if model_name not in AVAI_MODEL:
         print('not supported model name, please implement it first.')
-    return AVAI_MODEL[model_name](**kwargs)
+    return AVAI_MODEL[model_name](**kwargs).cuda()
 
 
 def get_optimizer(opt_name, **kwargs):

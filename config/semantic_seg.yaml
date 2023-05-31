@@ -8,11 +8,21 @@ train:
   sam_name: 'sem_sam'
   ckpt_path: 'sam_ckpt/sam_vit_h_4b8939.pth'
   # Dataset and Dataloader
-  dataset_name: 'voc_sem'
+  dataset:
+    name: 'torch_voc_sem'
+    params:
+      root: '/data/jinziqi/DATASETS/'
+      year: '2012'
+      image_set: 'train'
+    transforms:
+      resize: [ [ 512,512 ] ]
+      to_tensor: [ ]
+    target_transforms:
+      resize: [ [ 512,512 ] ]
+      to_tensor: [ ]
   bs: 16
   num_workers: 8
   drop_last: True
-  transfomrs: [ 'to_tensor','resize' ]
   # Losses
   loss_names: [ 'ce_loss','multi_label_soft_margin' ]
   loss_weight: [ 0.1, 0.1 ]
@@ -31,17 +41,29 @@ train:
   eval_iter: 20
   runner_name: 'sem_runner'
   # Logger
+  use_tensorboard: False
   log_folder: './log'
   model_folder: './model'
 
 
 val:
   # Dataset and Dataloader
-  dataset_name: 'voc_sem'
+  dataset:
+    name: 'torch_voc_sem'
+    params:
+      root: '/data/jinziqi/DATASETS/'
+      year: '2012'
+      image_set: 'val'
+    transforms:
+      resize: [ [ 512,512 ] ]
+      to_tensor: [ ]
+    target_transforms:
+      resize: [ [ 512,512 ] ]
+      to_tensor: [ ]
   bs: 16
   num_workers: 8
   drop_last: True
-  transfomrs: [ 'to_tensor','resize' ]
+
 
 test:
   need_test: True

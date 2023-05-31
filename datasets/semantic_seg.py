@@ -18,6 +18,7 @@ class BaseSemanticDataset(Dataset):
 
 class VOCSemanticDataset(Dataset):
     def __init__(self, root_dir, domain, transform, with_id=False, with_mask=False):
+        super(VOCSemanticDataset, self).__init__()
         self.root_dir = root_dir
 
         self.image_dir = self.root_dir + 'JPEGImages/'
@@ -38,6 +39,8 @@ class VOCSemanticDataset(Dataset):
 
     def get_image(self, image_id):
         image = Image.open(self.image_dir + image_id + '.jpg').convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
         return image
 
     def get_mask(self, image_id):

@@ -16,7 +16,7 @@ class BaseExtendSam(nn.Module):
         self.prompt_adapter = BasePromptEncodeAdapter(self.ori_sam, fix=fix_promt_en)
         self.mask_adapter = BaseMaskDecoderAdapter(self.ori_sam, fix=fix_mask_de)
 
-    def forword(self, img):
+    def forward(self, img):
         x = self.img_adapter(img)
         points = None
         boxes = None
@@ -39,6 +39,8 @@ class BaseExtendSam(nn.Module):
 
 
 class SemanticSam(BaseExtendSam):
+
     def __init__(self, ckpt_path=None, fix_img_en=False, fix_promt_en=False, fix_mask_de=False):
         super().__init__(ckpt_path=ckpt_path, fix_img_en=fix_promt_en, fix_promt_en=False, fix_mask_de=fix_mask_de)
         self.mask_adapter = SemMaskDecoderAdapter(self.ori_sam, fix=fix_img_en)
+
