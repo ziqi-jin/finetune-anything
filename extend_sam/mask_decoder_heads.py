@@ -117,6 +117,7 @@ class SemSegHead(nn.Module):
             activation: Type[nn.Module] = nn.GELU,
             iou_head_depth: int = 3,
             iou_head_hidden_dim: int = 256,
+            class_num: int = 20,
     ) -> None:
         """
         Predicts masks given an image and prompt embeddings, using a
@@ -135,10 +136,9 @@ class SemSegHead(nn.Module):
         """
         super().__init__()
         self.transformer_dim = transformer_dim
-
         self.num_multimask_outputs = num_multimask_outputs
-
         self.num_mask_tokens = num_multimask_outputs + 1
+        self.class_num = class_num
 
         self.output_upscaling = nn.Sequential(
             nn.ConvTranspose2d(transformer_dim, transformer_dim // 4, kernel_size=2, stride=2),
@@ -148,8 +148,12 @@ class SemSegHead(nn.Module):
             activation(),
         )
 
-        # TODO: the shape of MLP, or modified to conv.
-        self.output_hypernetworks_mlps = MLP(transformer_dim, transformer_dim, transformer_dim // 8, 3)
+        self.output_hypernetworks_mlps = nn.ModuleList(
+            [
+                MLP(transformer_dim, transformer_dim, transformer_dim // 8, 3)
+                for _ in range(self.class_num)
+            ]
+        )
 
         self.iou_prediction_head = MLP(
             transformer_dim, iou_head_hidden_dim, self.num_mask_tokens, iou_head_depth
@@ -160,6 +164,7 @@ class SemSegHead(nn.Module):
             src: torch.Tensor,
             iou_token_out: torch.Tensor,
             mask_tokens_out: torch.Tensor,
+            src_shape,
             mask_scale=1,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -177,12 +182,16 @@ class SemSegHead(nn.Module):
           torch.Tensor: batched predicted semantic masks
           torch.Tensor: batched predictions of mask quality
         """
-        b, c, h, w = src.shape
+        b, c, h, w = src_shape
 
         # Upscale mask embeddings and predict masks using the mask tokens
         src = src.transpose(1, 2).view(b, c, h, w)
         upscaled_embedding = self.output_upscaling(src)
-        hyper_in = self.output_hypernetworks_mlps(mask_tokens_out[:, mask_scale, :])
+        hyper_in_list: List[torch.Tensor] = []
+        for i in range(self.class_num):
+            hyper_in_list.append(self.output_hypernetworks_mlps[i](mask_tokens_out[:, mask_scale, :]))
+        hyper_in = torch.stack(hyper_in_list, dim=1)
+
         b, c, h, w = upscaled_embedding.shape
         masks = (hyper_in @ upscaled_embedding.view(b, c, h * w)).view(b, -1, h, w)  # B N H W, N is num of category
 

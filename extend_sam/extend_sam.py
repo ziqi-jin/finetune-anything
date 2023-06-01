@@ -11,7 +11,7 @@ class BaseExtendSam(nn.Module):
 
     def __init__(self, ckpt_path=None, fix_img_en=False, fix_promt_en=False, fix_mask_de=False):
         super(BaseExtendSam, self).__init__()
-        self.ori_sam = sam_model_registry['default'](ckpt_path)
+        self.ori_sam = sam_model_registry['vit_b'](ckpt_path)
         self.img_adapter = BaseImgEncodeAdapter(self.ori_sam, fix=fix_img_en)
         self.prompt_adapter = BasePromptEncodeAdapter(self.ori_sam, fix=fix_promt_en)
         self.mask_adapter = BaseMaskDecoderAdapter(self.ori_sam, fix=fix_mask_de)
@@ -30,9 +30,9 @@ class BaseExtendSam(nn.Module):
         multimask_output = True
         low_res_masks, iou_predictions = self.mask_adapter(
             image_embeddings=x,
-            image_pe=self.prompt_encoder.get_dense_pe(),
-            sparse_prompt_embeddings=sparse_embeddings,
-            dense_prompt_embeddings=dense_embeddings,
+            prompt_adapter=self.prompt_adapter,
+            sparse_embeddings=sparse_embeddings,
+            dense_embeddings=dense_embeddings,
             multimask_output=multimask_output,
         )
         return low_res_masks, iou_predictions
@@ -40,7 +40,6 @@ class BaseExtendSam(nn.Module):
 
 class SemanticSam(BaseExtendSam):
 
-    def __init__(self, ckpt_path=None, fix_img_en=False, fix_promt_en=False, fix_mask_de=False):
+    def __init__(self, ckpt_path=None, fix_img_en=False, fix_promt_en=False, fix_mask_de=False, class_num=20):
         super().__init__(ckpt_path=ckpt_path, fix_img_en=fix_promt_en, fix_promt_en=False, fix_mask_de=fix_mask_de)
-        self.mask_adapter = SemMaskDecoderAdapter(self.ori_sam, fix=fix_img_en)
-
+        self.mask_adapter = SemMaskDecoderAdapter(self.ori_sam, fix=fix_img_en, class_num=class_num)

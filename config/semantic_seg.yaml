@@ -6,7 +6,7 @@ train:
   # Model
   experiment_name: 'semantic_sam'
   sam_name: 'sem_sam'
-  ckpt_path: 'sam_ckpt/sam_vit_h_4b8939.pth'
+  ckpt_path: 'sam_ckpt/sam_vit_b_01ec64.pth'
   # Dataset and Dataloader
   dataset:
     name: 'torch_voc_sem'
@@ -15,13 +15,14 @@ train:
       year: '2012'
       image_set: 'train'
     transforms:
-      resize: [ [ 512,512 ] ]
+      resize: [ [ 1024,1024 ] ]
       to_tensor: [ ]
     target_transforms:
-      resize: [ [ 512,512 ] ]
+      resize: [ [ 1024,1024 ] ]
       to_tensor: [ ]
-  bs: 16
-  num_workers: 8
+    class_num: 20
+  bs: 2
+  num_workers: 1
   drop_last: True
   # Losses
   loss_names: [ 'ce_loss','multi_label_soft_margin' ]
