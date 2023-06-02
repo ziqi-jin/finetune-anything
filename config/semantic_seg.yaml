@@ -21,12 +21,21 @@ train:
       resize: [ [ 1024,1024 ] ]
       to_tensor: [ ]
     class_num: 20
-  bs: 2
+  bs: 1
   num_workers: 1
   drop_last: True
   # Losses
-  loss_names: [ 'ce_loss','multi_label_soft_margin' ]
-  loss_weight: [ 0.1, 0.1 ]
+  losses:
+    ce_loss:
+      weight: 0.1
+      params: ~ # ~ means None type, the initial params of loss could be identified here
+
+# example
+#    multi_label_soft_margin:
+#      weight: 0.1
+#      params: # ~ means None type, the initial params of loss could be identified here
+#        reduction: none #
+
   # Optimizer
   opt_params:
     lr_default: 0.1

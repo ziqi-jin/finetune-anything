@@ -5,13 +5,12 @@ name_dict = {'ce_loss': nn.CrossEntropyLoss, 'multi_label_soft_margin': nn.Multi
              'test_custom': CustormLoss}
 
 
-def get_losses(loss_names):
+def get_losses(losses):
     loss_dict = {}
-    for name in loss_names:
-        if name not in name_dict:
-            print('not supported loss name, please implement it first.')
-            break
-        loss_dict[name] = name_dict[name]
-    if len(loss_dict) != len(loss_names):
-        return None
+    for name in losses:
+        assert name  in name_dict, print('{name} is not supported, please implement it first.'.format(name=name))
+        if losses[name].params is not None:
+            loss_dict[name] = name_dict[name](**losses[name].params)
+        else:
+            loss_dict[name] = name_dict[name]()
     return loss_dict
