@@ -9,12 +9,17 @@ You need to supply the datasets for your tasks and the [supported task](#Support
 <img width="640" src="https://user-images.githubusercontent.com/67993288/230864865-db8810fd-9f0c-4f3e-81b1-8753b5121d03.png">
 
 ## Install
-
+### Step1
 ```
 git clone https://github.com/ziqi-jin/finetune-anything.git
 cd finetune-anything
 pip install -r requirements.txt
 ```
+### Step2
+Download the SAM weights from [SAM repository](https://github.com/facebookresearch/segment-anything#model-checkpoints)
+
+## Step3
+Modify the contents in yaml file, e.g., ckpt_path, model_type ...
 
 ## Supported Tasks
 - [x] Semantic Segmentation
