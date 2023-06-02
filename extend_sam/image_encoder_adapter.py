@@ -7,10 +7,10 @@ class BaseImgEncodeAdapter(nn.Module):
 
     def __init__(self, ori_sam: Sam, fix=False):
         super(BaseImgEncodeAdapter, self).__init__()
-        self.ori_sam_img_encoder = ori_sam.image_encoder
+        self.sam_img_encoder = ori_sam.image_encoder
         if fix:
-            fix_params(self.ori_sam_img_encoder)
+            fix_params(self.sam_img_encoder)
 
     def forward(self, x):
-        x = self.ori_sam_img_encoder(x)
+        x = self.sam_img_encoder(x)
         return x

@@ -25,12 +25,12 @@ class BaseMaskDecoderAdapter(MaskDecoder):
     def __init__(self, ori_sam: Sam, fix=False):
         super(BaseMaskDecoderAdapter, self).__init__(transformer_dim=ori_sam.mask_decoder.transformer_dim,
                                                      transformer=ori_sam.mask_decoder.transformer)
-        self.ori_sam_mask_decoder = ori_sam.mask_decoder
+        self.sam_mask_decoder = ori_sam.mask_decoder
         if fix:
-            fix_params(self.ori_sam_mask_decoder)  # move to runner to implement
+            fix_params(self.sam_mask_decoder)  # move to runner to implement
 
     def forward(self, image_embeddings, prompt_adapter, sparse_embeddings, dense_embeddings, multimask_output=True):
-        low_res_masks, iou_predictions = self.ori_sam_mask_decoder(image_embeddings=image_embeddings,
+        low_res_masks, iou_predictions = self.sam_mask_decoder(image_embeddings=image_embeddings,
                                                                    image_pe=prompt_adapter.sam_prompt_encoder.get_dense_pe(),
                                                                    sparse_prompt_embeddings=sparse_embeddings,
                                                                    dense_prompt_embeddings=dense_embeddings,
@@ -41,13 +41,13 @@ class BaseMaskDecoderAdapter(MaskDecoder):
 class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
     def __init__(self, ori_sam: Sam, fix=False, class_num=20):
         super(SemMaskDecoderAdapter, self).__init__(ori_sam, fix)
-        self.decoder_neck = MaskDecoderNeck(transformer_dim=self.ori_sam_mask_decoder.transformer_dim,
-                                            transformer=self.ori_sam_mask_decoder.transformer,
-                                            num_multimask_outputs=self.ori_sam_mask_decoder.num_multimask_outputs)
-        self.decoder_head = SemSegHead(transformer_dim=self.ori_sam_mask_decoder.transformer_dim,
-                                       num_multimask_outputs=self.ori_sam_mask_decoder.num_multimask_outputs,
-                                       iou_head_depth=self.ori_sam_mask_decoder.iou_head_depth,
-                                       iou_head_hidden_dim=self.ori_sam_mask_decoder.iou_head_hidden_dim,
+        self.decoder_neck = MaskDecoderNeck(transformer_dim=self.sam_mask_decoder.transformer_dim,
+                                            transformer=self.sam_mask_decoder.transformer,
+                                            num_multimask_outputs=self.sam_mask_decoder.num_multimask_outputs)
+        self.decoder_head = SemSegHead(transformer_dim=self.sam_mask_decoder.transformer_dim,
+                                       num_multimask_outputs=self.sam_mask_decoder.num_multimask_outputs,
+                                       iou_head_depth=self.sam_mask_decoder.iou_head_depth,
+                                       iou_head_hidden_dim=self.sam_mask_decoder.iou_head_hidden_dim,
                                        class_num=class_num)
         # pair the params between ori mask_decoder and new mask_decoder_adapter
         self.pair_params(self.decoder_neck)
@@ -64,7 +64,7 @@ class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
         return masks, iou_pred
 
     def pair_params(self, target_model: nn.Module):
-        src_dict = self.ori_sam_mask_decoder.state_dict()
+        src_dict = self.sam_mask_decoder.state_dict()
         for name, value in target_model.named_parameters():
             if name in src_dict.keys():
                 value.data.copy_(src_dict[name].data)
