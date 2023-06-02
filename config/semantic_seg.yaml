@@ -34,19 +34,19 @@ train:
       weight: 1.0
       params: ~ # ~ means None type, the initial params of loss could be identified here
 
-# example
-#    multi_label_soft_margin:
-#      weight: 0.1
-#      params: # ~ means None type, the initial params of loss could be identified here
-#        reduction: none #
+  # example
+  #    multi_label_soft_margin:
+  #      weight: 0.1
+  #      params: # ~ means None type, the initial params of loss could be identified here
+  #        reduction: none #
 
   # Optimizer
   opt_params:
-    lr_default: 0.1
+    lr_default: 0.001
     wd_default: 1e-4
     momentum: 0.9
-    lr_list: [ 0.1, 0.0001 ]
-    group_keys: [ [ '','' ],[ '','' ] ]
+    lr_list: [ 0.1, 0.05 ]
+    group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], [ 'output_upscaling', ] ]
     wd_list: [ 0.0, 4e-5 ]
   scheduler_name: 'cosine'
   opt_name: 'sgd'

@@ -31,9 +31,10 @@ def get_opt_pamams(model, lr_list, group_keys, wd_list):
     assert len(lr_list) == len(wd_list), "lr_list should has the same length as wd_list"
     params_group = [[] for _ in range(len(lr_list))]
     for name, value in model.named_parameters():
-        for index, g_key in enumerate(group_keys):
-            if name in g_key:
-                params_group[index].append(value)
+        for index, g_keys in enumerate(group_keys):
+            for g_key in g_keys:
+                if g_key in name:
+                    params_group[index].append(value)
     return [{'params': params_group[i], 'lr': lr_list[i], 'weight_decay': wd_list[i]} for i in range(len(lr_list))]
 
 
