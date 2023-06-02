@@ -11,7 +11,6 @@ from extend_sam import get_model, get_optimizer, get_scheduler, get_opt_pamams, 
 supported_tasks = ['detection', 'semantic_seg', 'instance_seg']
 parser = argparse.ArgumentParser()
 parser.add_argument('--task_name', default='semantic_seg', type=str)
-parser.add_argument('--data_dir', type=str, required=True)
 parser.add_argument('--cfg', default=None, type=str)
 
 if __name__ == '__main__':
