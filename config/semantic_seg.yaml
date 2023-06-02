@@ -42,12 +42,12 @@ train:
 
   # Optimizer
   opt_params:
-    lr_default: 0.001
+    lr_default: 0.1
     wd_default: 1e-4
     momentum: 0.9
-    lr_list: [ 0.1, 0.05 ]
-    group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], [ 'output_upscaling', ] ]
-    wd_list: [ 0.0, 4e-5 ]
+    lr_list: [ 0.1, ]
+    group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], ]
+    wd_list: [ 0.0 ]
   scheduler_name: 'cosine'
   opt_name: 'sgd'
   # Logger
