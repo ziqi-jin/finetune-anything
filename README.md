@@ -19,7 +19,7 @@ pip install -r requirements.txt
 Download the SAM weights from [SAM repository](https://github.com/facebookresearch/segment-anything#model-checkpoints)
 
 ### Step3
-Modify the contents in yaml file, e.g., ckpt_path, model_type ...
+Modify the contents of yaml file for the specific task in **/config**, e.g., ckpt_path, model_type ...
 
 ## Supported Tasks
 - [x] Semantic Segmentation
