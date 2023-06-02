@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 from torch.utils.data import Dataset
+from torchvision.datasets import VOCSegmentation
 
 
 class BaseSemanticDataset(Dataset):
@@ -63,3 +64,13 @@ class VOCSemanticDataset(Dataset):
             data_list.append(self.get_mask(image_id))
 
         return data_list
+
+
+class TorchVOCSegmentation(VOCSegmentation):
+    def __init__(self, root, year='2012', image_set='train', download=False, transform=None, target_transform=None):
+        super(TorchVOCSegmentation, self).__init__(root=root, year=year, image_set=image_set, download=download,
+                                                   transform=transform, target_transform=target_transform)
+        self.class_names = ['bicycle', 'bird', 'boat', 'bottle',
+                            'bus', 'car', 'cat', 'chair', 'cow',
+                            'diningtable', 'dog', 'horse', 'motorbike', 'person',
+                            'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']

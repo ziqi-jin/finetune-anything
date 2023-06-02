@@ -1,7 +1,9 @@
 from datasets import Iterator
-from .utils import Average_Meter, Timer, print_and_save_log, mIoUOnline, get_numpy_from_tensor, save_model, write_log
+from .utils import Average_Meter, Timer, print_and_save_log, mIoUOnline, get_numpy_from_tensor, save_model, write_log, \
+    check_folder
 import torch
 import cv2
+import torch.nn.functional as F
 
 
 class BaseRunner():
@@ -31,24 +33,25 @@ class SemRunner(BaseRunner):
         best_valid_mIoU = -1
         model_path = "{cfg.model_folder}/{cfg.experiment_name}/model.pth".format(cfg=cfg)
         log_path = "{cfg.log_folder}/{cfg.experiment_name}/log_file.txt".format(cfg=cfg)
+        check_folder(model_path)
+        check_folder(log_path)
         writer = None
         if cfg.use_tensorboard is True:
             tensorboard_dir = "{cfg.tensorboard_folder}/{cfg.experiment_name}/tensorboard/".format(cfg=cfg)
             from torch.utils.tensorboard import SummaryWriter
             writer = SummaryWriter(tensorboard_dir)
-
+        original_size = self.model.img_adapter.sam_img_encoder.img_size
         # train
         for iteration in range(cfg.max_iter):
             images, labels = train_iterator.get()
-            images, labels = images.cuda(), labels.cuda()
+            images, labels = images.cuda(), labels.cuda().squeeze(1).long()
             masks_pred, iou_pred = self.model(images)
-            total_loss = None
-            loss_dict = {}
-            for index, item in enumerate(self.losses.items()):
-                tmp_loss = item[1](masks_pred, labels)
-                loss_dict[item[0]] = tmp_loss.item()
-                total_loss += cfg.loss_weight[index] * tmp_loss
 
+            masks_pred = F.interpolate(masks_pred, original_size, mode="bilinear", align_corners=False)
+
+            total_loss = torch.zeros(1).cuda()
+            loss_dict = {}
+            self._compute_loss(total_loss, loss_dict, masks_pred, labels, cfg)
             self.optimizer.zero_grad()
             total_loss.backward()
             self.optimizer.step()
@@ -58,17 +61,19 @@ class SemRunner(BaseRunner):
 
             # log
             if (iteration + 1) % cfg.log_iter == 0:
-                write_log(log_path=log_path, log_data=train_meter.get(clear=True), status=self.exist_status[0],
-                          writer=writer)
+                write_log(iteration=iteration, log_path=log_path, log_data=train_meter.get(clear=True),
+                          status=self.exist_status[0],
+                          writer=writer, timer=self.train_timer)
             # eval
             if (iteration + 1) % cfg.eval_iter == 0:
                 mIoU, _ = self._eval()
                 if best_valid_mIoU == -1 or best_valid_mIoU < mIoU:
                     best_valid_mIoU = mIoU
                     save_model(self.model, model_path)
-                    print_and_save_log("saved model in {model_path}".format(model_path=model_path))
+                    print_and_save_log("saved model in {model_path}".format(model_path=model_path), path=log_path)
                     log_data = {'mIoU': mIoU, 'best_valid_mIoU': best_valid_mIoU}
-                    write_log(log_path=log_path, log_data=log_data, status=self.exist_status[1], writer=writer)
+                    write_log(iteration=iteration, log_path=log_path, log_data=log_data, status=self.exist_status[1],
+                              writer=writer, timer=self.eval_timer)
         # final process
         save_model(self.model, model_path, is_final=True)
         if writer is not None:
@@ -90,11 +95,22 @@ class SemRunner(BaseRunner):
                 predictions = torch.argmax(masks_pred, dim=1)
                 for batch_index in range(images.size()[0]):
                     pred_mask = get_numpy_from_tensor(predictions[batch_index])
-                    gt_mask = get_numpy_from_tensor(labels[batch_index])
-
+                    gt_mask = get_numpy_from_tensor(labels[batch_index].squeeze(0))
                     h, w = pred_mask.shape
                     gt_mask = cv2.resize(gt_mask, (w, h), interpolation=cv2.INTER_NEAREST)
 
                     eval_metric.add(pred_mask, gt_mask)
         self.model.train()
         return eval_metric.get(clear=True)
+
+    def _compute_loss(self, total_loss, loss_dict, mask_pred, labels, cfg):
+        """
+        Due to the inputs of losses are different, so if you want to add new losses,
+        you may need to modify the process in this function
+        """
+        loss_cfg = cfg.losses
+        for index, item in enumerate(self.losses.items()):
+            # item -> (key: loss_name, val: loss)
+            tmp_loss = item[1](mask_pred, labels)
+            loss_dict[item[0]] = tmp_loss.item()
+            total_loss += loss_cfg[item[0]].weight * tmp_loss

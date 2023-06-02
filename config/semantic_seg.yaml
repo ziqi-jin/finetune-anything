@@ -1,12 +1,18 @@
 train:
-  # Fix the a part of parameters in SAM
-  fix_img_encoder: True
-  fix_prompt_encoder: True
-  fix_mask_decoder: False
-  # Model
   experiment_name: 'semantic_sam'
-  sam_name: 'sem_sam'
-  ckpt_path: 'sam_ckpt/sam_vit_b_01ec64.pth'
+
+  # Model
+  model:
+    sam_name: 'sem_sam'
+    params:
+      # Fix the a part of parameters in SAM
+      fix_img_en: True
+      fix_prompt_en: True
+      fix_mask_de: False
+      ckpt_path: 'sam_ckpt/sam_vit_b_01ec64.pth'
+      class_num: 20
+      model_type: 'vit_b'    # type should be in [vit_h, vit_b, vit_l, default]
+
   # Dataset and Dataloader
   dataset:
     name: 'torch_voc_sem'
@@ -21,13 +27,11 @@ train:
       resize: [ [ 1024,1024 ] ]
       to_tensor: [ ]
     class_num: 20
-  bs: 1
-  num_workers: 1
-  drop_last: True
+
   # Losses
   losses:
     ce_loss:
-      weight: 0.1
+      weight: 1.0
       params: ~ # ~ means None type, the initial params of loss could be identified here
 
 # example
@@ -46,15 +50,19 @@ train:
     wd_list: [ 0.0, 4e-5 ]
   scheduler_name: 'cosine'
   opt_name: 'sgd'
-  max_iter: 100
-  log_iter: 10
-  eval_iter: 20
-  runner_name: 'sem_runner'
   # Logger
-  use_tensorboard: False
-  log_folder: './log'
-  model_folder: './model'
-
+  use_tensorboard: True
+  tensorboard_folder: './experiment/tensorboard'
+  log_folder: './experiment/log'
+  model_folder: './experiment/model'
+  # Others
+  max_iter: 1000
+  log_iter: 20
+  eval_iter: 200
+  runner_name: 'sem_runner'
+  bs: 4
+  num_workers: 1
+  drop_last: True
 
 val:
   # Dataset and Dataloader
@@ -63,15 +71,16 @@ val:
     params:
       root: '/data/jinziqi/DATASETS/'
       year: '2012'
-      image_set: 'val'
+      image_set: 'train'
     transforms:
-      resize: [ [ 512,512 ] ]
+      resize: [ [ 1024,1024 ] ]
       to_tensor: [ ]
     target_transforms:
-      resize: [ [ 512,512 ] ]
+      resize: [ [ 1024,1024 ] ]
       to_tensor: [ ]
-  bs: 16
-  num_workers: 8
+    class_num: 20
+  bs: 4
+  num_workers: 1
   drop_last: True
 
 

@@ -4,6 +4,9 @@
 import time
 import numpy as np
 import torch
+import torch.nn.functional as F
+import os.path as osp
+import os
 
 
 def fix_params(model):
@@ -87,6 +90,7 @@ class Average_Meter:
 
 def print_and_save_log(message, path):
     print(message)
+
     with open(path, 'a+') as f:
         f.write(message + '\n')
 
@@ -173,7 +177,7 @@ def get_numpy_from_tensor(tensor):
     return tensor.cpu().detach().numpy()
 
 
-def save_model(model, model_path, parallel=False, is_final = False):
+def save_model(model, model_path, parallel=False, is_final=False):
     if is_final:
         model_path_split = model_path.split('.')
         model_path = model_path_split[0] + "_final.pth"
@@ -191,9 +195,60 @@ def write_log(iteration, log_path, log_data, status, writer, timer):
         if key == 'iteration':
             continue
         message += "{key} : {val}, ".format(key=key, val=value)
-    message = message[:-2] + '\n'
+    message = message[:-2] # + '\n'
     print_and_save_log(message, log_path)
     # visualize
     if writer is not None:
         for key, value in log_data.items():
             writer.add_scalar("{status}/{key}".format(status=status, key=key), value, iteration)
+
+
+def postprocess_masks(
+        self,
+        masks: torch.Tensor,
+        input_size,
+        original_size,
+) -> torch.Tensor:
+    """
+    Remove padding and upscale masks to the original image size.
+
+    Arguments:
+      masks (torch.Tensor): Batched masks from the mask_decoder,
+        in BxCxHxW format.
+      input_size (tuple(int, int)): The size of the image input to the
+        model, in (H, W) format. Used to remove padding.
+      original_size (tuple(int, int)): The original size of the image
+        before resizing for input to the model, in (H, W) format.
+
+    Returns:
+      (torch.Tensor): Batched masks in BxCxHxW format, where (H, W)
+        is given by original_size.
+    """
+    masks = F.interpolate(
+        masks,
+        (self.image_encoder.img_size, self.image_encoder.img_size),
+        mode="bilinear",
+        align_corners=False,
+    )
+    masks = masks[..., : input_size[0], : input_size[1]]
+    masks = F.interpolate(masks, original_size, mode="bilinear", align_corners=False)
+    return masks
+
+
+def check_folder(file_path, is_folder=False):
+    '''
+
+    :param file_path: the path of file, default input is a complete file name with dir path.
+    :param is_folder: if the input is a dir, not a file_name, is_folder should be True
+    :return: no return, this function will check and judge whether need to make dirs.
+    '''
+    if is_folder:
+        if not osp.exists(is_folder):
+            os.makedirs(file_path)
+
+    else:
+        splits = file_path.split("/")
+        folder_name = "/".join(splits[:-1])
+        if not osp.exists(folder_name):
+            os.makedirs(folder_name)
+
