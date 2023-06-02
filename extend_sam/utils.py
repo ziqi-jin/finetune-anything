@@ -203,38 +203,6 @@ def write_log(iteration, log_path, log_data, status, writer, timer):
             writer.add_scalar("{status}/{key}".format(status=status, key=key), value, iteration)
 
 
-def postprocess_masks(
-        self,
-        masks: torch.Tensor,
-        input_size,
-        original_size,
-) -> torch.Tensor:
-    """
-    Remove padding and upscale masks to the original image size.
-
-    Arguments:
-      masks (torch.Tensor): Batched masks from the mask_decoder,
-        in BxCxHxW format.
-      input_size (tuple(int, int)): The size of the image input to the
-        model, in (H, W) format. Used to remove padding.
-      original_size (tuple(int, int)): The original size of the image
-        before resizing for input to the model, in (H, W) format.
-
-    Returns:
-      (torch.Tensor): Batched masks in BxCxHxW format, where (H, W)
-        is given by original_size.
-    """
-    masks = F.interpolate(
-        masks,
-        (self.image_encoder.img_size, self.image_encoder.img_size),
-        mode="bilinear",
-        align_corners=False,
-    )
-    masks = masks[..., : input_size[0], : input_size[1]]
-    masks = F.interpolate(masks, original_size, mode="bilinear", align_corners=False)
-    return masks
-
-
 def check_folder(file_path, is_folder=False):
     '''
 
