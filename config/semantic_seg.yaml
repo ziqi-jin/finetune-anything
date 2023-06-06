@@ -42,10 +42,10 @@ train:
 
   # Optimizer
   opt_params:
-    lr_default: 0.1
+    lr_default: 1e-3
     wd_default: 1e-4
     momentum: 0.9
-    lr_list: [ 0.1, ]
+    lr_list: [ 1e-2, ]
     group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], ]
     wd_list: [ 0.0 ]
   scheduler_name: 'cosine'
@@ -56,11 +56,11 @@ train:
   log_folder: './experiment/log'
   model_folder: './experiment/model'
   # Others
-  max_iter: 1000
+  max_iter: 10000
   log_iter: 20
   eval_iter: 200
   runner_name: 'sem_runner'
-  bs: 4
+  bs: 8
   num_workers: 1
   drop_last: True
 
@@ -79,10 +79,11 @@ val:
       resize: [ [ 1024,1024 ] ]
       to_tensor: [ ]
     class_num: 20
-  bs: 4
+  bs: 8
   num_workers: 1
   drop_last: True
 
 
 test:
-  need_test: True
+  need_test: False
+
