@@ -17,7 +17,7 @@ train:
   dataset:
     name: 'torch_voc_sem'
     params:
-      root: '/data/jinziqi/DATASETS/'
+      root: '/your/dataset/path/'
       year: '2012'
       image_set: 'train'
     transforms:
@@ -69,7 +69,7 @@ val:
   dataset:
     name: 'torch_voc_sem'
     params:
-      root: '/data/jinziqi/DATASETS/'
+      root: '/your/Dataset/path/'
       year: '2012'
       image_set: 'train'
     transforms:
