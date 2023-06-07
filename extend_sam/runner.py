@@ -4,6 +4,8 @@ from .utils import Average_Meter, Timer, print_and_save_log, mIoUOnline, get_num
 import torch
 import cv2
 import torch.nn.functional as F
+import os
+import torch.nn as nn
 
 
 class BaseRunner():
@@ -16,6 +18,14 @@ class BaseRunner():
         self.scheduler = scheduler
         self.train_timer = Timer()
         self.eval_timer = Timer()
+        try:
+            use_gpu = os.environ['CUDA_VISIBLE_DEVICES']
+        except KeyError:
+            use_gpu = '0'
+        self.the_number_of_gpu = len(use_gpu.split(','))
+        self.original_size = self.model.img_adapter.sam_img_encoder.img_size
+        if self.the_number_of_gpu > 1:
+            self.model = nn.DataParallel(self.model)
 
 
 class SemRunner(BaseRunner):
@@ -40,14 +50,13 @@ class SemRunner(BaseRunner):
             tensorboard_dir = "{cfg.tensorboard_folder}/{cfg.experiment_name}/tensorboard/".format(cfg=cfg)
             from torch.utils.tensorboard import SummaryWriter
             writer = SummaryWriter(tensorboard_dir)
-        original_size = self.model.img_adapter.sam_img_encoder.img_size
         # train
         for iteration in range(cfg.max_iter):
             images, labels = train_iterator.get()
             images, labels = images.cuda(), labels.cuda().squeeze(1).long()
             masks_pred, iou_pred = self.model(images)
 
-            masks_pred = F.interpolate(masks_pred, original_size, mode="bilinear", align_corners=False)
+            masks_pred = F.interpolate(masks_pred, self.original_size, mode="bilinear", align_corners=False)
 
             total_loss = torch.zeros(1).cuda()
             loss_dict = {}
@@ -69,13 +78,13 @@ class SemRunner(BaseRunner):
                 mIoU, _ = self._eval()
                 if best_valid_mIoU == -1 or best_valid_mIoU < mIoU:
                     best_valid_mIoU = mIoU
-                    save_model(self.model, model_path)
+                    save_model(self.model, model_path, parallel=self.the_number_of_gpu > 1)
                     print_and_save_log("saved model in {model_path}".format(model_path=model_path), path=log_path)
                     log_data = {'mIoU': mIoU, 'best_valid_mIoU': best_valid_mIoU}
                     write_log(iteration=iteration, log_path=log_path, log_data=log_data, status=self.exist_status[1],
                               writer=writer, timer=self.eval_timer)
         # final process
-        save_model(self.model, model_path, is_final=True)
+        save_model(self.model, model_path, is_final=True, parallel=self.the_number_of_gpu > 1)
         if writer is not None:
             writer.close()
 
