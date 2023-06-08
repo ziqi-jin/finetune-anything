@@ -23,7 +23,7 @@ Finetune-Anything further encapsulates the three parts of the original SAM. For 
 - [ ] Detection 
 ## Supported Datasets
 - [x] TorchVOCSegmentation
-- [ ] BaseSemantic
+- [x] BaseSemantic
 - [ ] BaseInstance
 - [ ] BaseMatting
 
