@@ -10,7 +10,7 @@ You need to supply the datasets for your tasks and the [supported task](#Support
 
 ### Design
 Finetune-Anything further encapsulates the three parts of the original SAM. For example, MaskDecoder is encapsulated as MaskDecoderAdapter. Users can customize the structure of Extend SAM in MaskDecoderAdapter. The current MaskDecoderAdatper contains two parts, DecoderNeck and DecoderHead
-<img width="640" src="https://user-images.githubusercontent.com/67993288/243564144-d1273f3b-049f-44c6-b1e1-4be76022a772.svg">
+<img width="640" src="https://user-images.githubusercontent.com/67993288/244574810-db9a50ad-4082-4647-8b91-7a261f5aad40.svg">
 
 
 ## Supported Tasks
