@@ -17,7 +17,7 @@ train:
   dataset:
     name: 'torch_voc_sem'
     params:
-      root: '/your/dataset/path/'
+      root: '/data/jinziqi/DATASETS/'
       year: '2012'
       image_set: 'train'
     transforms:
@@ -30,10 +30,14 @@ train:
 
   # Losses
   losses:
-    ce_loss:
-      weight: 1.0
+    ce:
+      weight: 0.5
       params: ~ # ~ means None type, the initial params of loss could be identified here
-
+      label_one_hot: False
+    mse:
+      weight: 5.0
+      params: ~
+      label_one_hot: True
   # example
   #    multi_label_soft_margin:
   #      weight: 0.1
@@ -69,7 +73,7 @@ val:
   dataset:
     name: 'torch_voc_sem'
     params:
-      root: '/your/Dataset/path/'
+      root: '/data/jinziqi/DATASETS/'
       year: '2012'
       image_set: 'train'
     transforms:

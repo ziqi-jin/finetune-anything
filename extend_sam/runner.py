@@ -1,6 +1,6 @@
 from datasets import Iterator
 from .utils import Average_Meter, Timer, print_and_save_log, mIoUOnline, get_numpy_from_tensor, save_model, write_log, \
-    check_folder
+    check_folder, one_hot_embedding_3d
 import torch
 import cv2
 import torch.nn.functional as F
@@ -120,6 +120,9 @@ class SemRunner(BaseRunner):
         loss_cfg = cfg.losses
         for index, item in enumerate(self.losses.items()):
             # item -> (key: loss_name, val: loss)
-            tmp_loss = item[1](mask_pred, labels)
+            real_labels = labels
+            if loss_cfg[item[0]].label_one_hot:
+                real_labels = one_hot_embedding_3d(real_labels)
+            tmp_loss = item[1](mask_pred, real_labels)
             loss_dict[item[0]] = tmp_loss.item()
             total_loss += loss_cfg[item[0]].weight * tmp_loss

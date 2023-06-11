@@ -221,3 +221,12 @@ def check_folder(file_path, is_folder=False):
         if not osp.exists(folder_name):
             os.makedirs(folder_name)
 
+def one_hot_embedding_3d(labels, class_num=20):
+    '''
+
+    :param real_labels: B H W
+    :param class_num: N
+    :return: B N H W
+    '''
+    return F.one_hot(labels, num_classes=class_num).permute(0, 3, 1, 2).contiguous().float()
+
