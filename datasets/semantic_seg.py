@@ -1,10 +1,10 @@
 import os
 from PIL import Image
 from torch.utils.data import Dataset
-from torchvision.datasets import VOCSegmentation
+from torchvision.datasets import VOCSegmentation, VisionDataset
 
 
-class BaseSemanticDataset(Dataset):
+class BaseSemanticDataset(VisionDataset):
     """
     if you want to customize a new dataset to train the segmentation task,
     the img and mask file need be arranged as this sturcture.
@@ -24,11 +24,12 @@ class BaseSemanticDataset(Dataset):
         │   │   │   ├── val
     """
 
-    def __init__(self, metainfo, dataset_dir,
+    def __init__(self, metainfo, dataset_dir, transform, target_transform,
                  image_set='train',
                  img_suffix='.jpg',
                  ann_suffix='.png',
-                 data_prefix: dict = dict(img_path='img', ann_path='ann'), return_dict=False):
+                 data_prefix: dict = dict(img_path='img', ann_path='ann'),
+                 return_dict=False):
         '''
 
         :param metainfo: meta data in original dataset, e.g. class_names
@@ -39,6 +40,9 @@ class BaseSemanticDataset(Dataset):
         :param data_prefix: data folder name, as the tree shows above, the data_prefix of my_dataset: img_path='img' , ann_path='ann'
         :param return_dict: return dict() or tuple(img, ann)
         '''
+        super(BaseSemanticDataset, self).__init__(root=dataset_dir, transform=transform,
+                                                  target_transform=target_transform)
+
         self.class_names = metainfo['class_names']
         self.img_path = os.path.join(dataset_dir, data_prefix['img_path'], image_set)
         self.ann_path = os.path.join(dataset_dir, data_prefix['ann_path'], image_set)
