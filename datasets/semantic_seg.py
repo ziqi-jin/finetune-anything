@@ -57,6 +57,8 @@ class BaseSemanticDataset(VisionDataset):
     def __getitem__(self, index):
         img = Image.open(os.path.join(self.img_path, self.img_names[index] + self.img_suffix))
         ann = Image.open(os.path.join(self.ann_path, self.img_names[index] + self.ann_suffix))
+        if self.transforms is not None:
+            img, ann = self.transforms(img, ann)
         if self.return_dict:
             data = dict(img_name=self.img_names[index], img=img, ann=ann,
                         img_path=os.path.join(self.img_path, self.img_names[index] + self.img_suffix),
