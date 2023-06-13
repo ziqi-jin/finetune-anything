@@ -2,13 +2,14 @@
 import torch
 from .extend_sam import BaseExtendSam, SemanticSam
 from .runner import BaseRunner, SemRunner
-from .optimizer import BaseOptimizer
+# from .optimizer import BaseOptimizer
 from .scheduler import WarmupMultiStepLR
 from .utils import get_opt_pamams
 
 AVAI_SCH = ["single_step", "multi_step", "warmup_multi_step", "cosine", "linear"]
 AVAI_MODEL = {'base_sam': BaseExtendSam, 'sem_sam': SemanticSam}
-AVAI_OPT = {'base_opt': BaseOptimizer, 'sgd': torch.optim.SGD, 'adam': torch.optim.Adam}
+# AVAI_OPT = {'base_opt': BaseOptimizer, 'sgd': torch.optim.SGD, 'adam': torch.optim.Adam}
+AVAI_OPT = { 'sgd': torch.optim.SGD, 'adam': torch.optim.Adam}
 AVAI_RUNNER = {'base_runner': BaseRunner, 'sem_runner': SemRunner}
 
 
