@@ -46,14 +46,14 @@ train:
 
   # Optimizer
   opt_params:
-    lr_default: 1e-3
+    lr_default: 5e-6 # 1e-3
     wd_default: 1e-4
-    momentum: 0.9
-    lr_list: [ 1e-2, ]
+    momentum: ~
+    lr_list: [5e-6, ] # [ 1e-2, ]
     group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], ]
-    wd_list: [ 0.0 ]
+    wd_list: [1e-4] # [ 0.0 ]
   scheduler_name: 'cosine'
-  opt_name: 'sgd'
+  opt_name: 'adamw' # 'sgd'
   # Logger
   use_tensorboard: True
   tensorboard_folder: './experiment/tensorboard'
@@ -64,7 +64,7 @@ train:
   log_iter: 20
   eval_iter: 200
   runner_name: 'sem_runner'
-  bs: 8
+  bs: 32 # 8
   num_workers: 1
   drop_last: True
 
