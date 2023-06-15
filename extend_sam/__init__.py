@@ -55,11 +55,11 @@ def get_scheduler(
         max_epoch (int, optional): maximum epoch (for cosine annealing). Default is 1.
     Examples::
         >>> # Decay learning rate by every 20 epochs.
-        >>> scheduler = torchreid.optim.build_lr_scheduler(
+        >>> scheduler = get_scheduler(
         >>>     optimizer, lr_scheduler='single_step', stepsize=20
         >>> )
         >>> # Decay learning rate at 30, 50 and 55 epochs.
-        >>> scheduler = torchreid.optim.build_lr_scheduler(
+        >>> scheduler = get_scheduler(
         >>>     optimizer, lr_scheduler='multi_step', stepsize=[30, 50, 55]
         >>> )
     """
@@ -112,7 +112,7 @@ def get_scheduler(
 
     elif lr_scheduler == "cosine":
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-            optimizer, float(max_epoch)
+            optimizer, int(max_epoch)
         )
 
     elif lr_scheduler == "linear":
