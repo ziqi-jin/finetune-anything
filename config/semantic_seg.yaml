@@ -10,7 +10,7 @@ train:
       fix_prompt_en: True
       fix_mask_de: False
       ckpt_path: 'sam_ckpt/sam_vit_b_01ec64.pth'
-      class_num: 20
+      class_num: 21 # 20 + 1
       model_type: 'vit_b'    # type should be in [vit_h, vit_b, vit_l, default]
 
   # Dataset and Dataloader
@@ -21,23 +21,27 @@ train:
       year: '2012'
       image_set: 'train'
     transforms:
-      resize: [ [ 1024,1024 ] ]
-      to_tensor: [ ]
+      resize:
+        params:
+          size: [1024, 1024]
+      to_tensor:
+        params: ~
     target_transforms:
-      resize: [ [ 1024,1024 ] ]
-      to_tensor: [ ]
-    class_num: 20
+      resize:
+        params:
+          size: [1024, 1024]
 
   # Losses
   losses:
     ce:
       weight: 0.5
-      params: ~ # ~ means None type, the initial params of loss could be identified here
+      params:  # ~ means None type, the initial params of loss could be identified here
+        ignore_index: 255
       label_one_hot: False
-    mse:
-      weight: 5.0
-      params: ~
-      label_one_hot: True
+#    mse:
+#      weight: 5.0
+#      params: ~
+#      label_one_hot: True
   # example
   #    multi_label_soft_margin:
   #      weight: 0.1
@@ -46,14 +50,18 @@ train:
 
   # Optimizer
   opt_params:
-    lr_default: 5e-6 # 1e-3
+#    lr_default: 5e-6 # 1e-3
+    lr_default:  1e-3
     wd_default: 1e-4
-    momentum: ~
-    lr_list: [5e-6, ] # [ 1e-2, ]
+    momentum: 0.9
+    lr_list:  [ 1e-2, ]
+#    lr_list: [5e-6, ] # [ 1e-2, ]
+
     group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], ]
-    wd_list: [1e-4] # [ 0.0 ]
+    wd_list:  [ 0.0 ]
+#    wd_list: [1e-4] # [ 0.0 ]
   scheduler_name: 'cosine'
-  opt_name: 'adamw' # 'sgd'
+  opt_name: 'sgd' # 'sgd'
   # Logger
   use_tensorboard: True
   tensorboard_folder: './experiment/tensorboard'
@@ -64,8 +72,8 @@ train:
   log_iter: 20
   eval_iter: 200
   runner_name: 'sem_runner'
-  bs: 32 # 8
-  num_workers: 1
+  bs: 16 # 8
+  num_workers: 2
   drop_last: True
 
 val:
@@ -77,14 +85,19 @@ val:
       year: '2012'
       image_set: 'train'
     transforms:
-      resize: [ [ 1024,1024 ] ]
-      to_tensor: [ ]
+      resize:
+        params:
+          size: [1024, 1024]
+      to_tensor:
+        params: ~
     target_transforms:
-      resize: [ [ 1024,1024 ] ]
-      to_tensor: [ ]
-    class_num: 20
-  bs: 8
-  num_workers: 1
+      resize:
+        params:
+          size: [1024, 1024]
+#      to_tensor: [ ]
+#    class_num: 21
+  bs: 16
+  num_workers: 2
   drop_last: True
 
 

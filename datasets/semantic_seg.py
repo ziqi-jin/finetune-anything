@@ -2,6 +2,7 @@ import os
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.datasets import VOCSegmentation, VisionDataset
+import numpy as np
 
 
 class BaseSemanticDataset(VisionDataset):
@@ -59,6 +60,8 @@ class BaseSemanticDataset(VisionDataset):
         ann = Image.open(os.path.join(self.ann_path, self.img_names[index] + self.ann_suffix))
         if self.transforms is not None:
             img, ann = self.transforms(img, ann)
+        ann = np.array(ann)
+
         if self.return_dict:
             data = dict(img_name=self.img_names[index], img=img, ann=ann,
                         img_path=os.path.join(self.img_path, self.img_names[index] + self.img_suffix),
@@ -83,7 +86,7 @@ class VOCSemanticDataset(Dataset):
         self.transform = transform
         self.with_id = with_id
         self.with_mask = with_mask
-        self.class_names = ['bicycle', 'bird', 'boat', 'bottle',
+        self.class_names = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
                             'bus', 'car', 'cat', 'chair', 'cow',
                             'diningtable', 'dog', 'horse', 'motorbike', 'person',
                             'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
@@ -123,7 +126,24 @@ class TorchVOCSegmentation(VOCSegmentation):
     def __init__(self, root, year='2012', image_set='train', download=False, transform=None, target_transform=None):
         super(TorchVOCSegmentation, self).__init__(root=root, year=year, image_set=image_set, download=download,
                                                    transform=transform, target_transform=target_transform)
-        self.class_names = ['bicycle', 'bird', 'boat', 'bottle',
+        self.class_names = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
                             'bus', 'car', 'cat', 'chair', 'cow',
                             'diningtable', 'dog', 'horse', 'motorbike', 'person',
                             'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+
+    def __getitem__(self, index: int):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (image, target) where target is the image segmentation.
+        """
+        img = Image.open(self.images[index]).convert('RGB')
+        target = Image.open(self.masks[index])
+
+        if self.transforms is not None:
+            img, target = self.transforms(img, target)
+
+        target = np.array(target)
+        return img, target
