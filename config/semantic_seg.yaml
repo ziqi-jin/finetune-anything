@@ -68,11 +68,11 @@ train:
   log_folder: './experiment/log'
   model_folder: './experiment/model'
   # Others
-  max_iter: 10000
+  max_iter: 100000
   log_iter: 20
   eval_iter: 200
   runner_name: 'sem_runner'
-  bs: 16 # 8
+  bs: 8 # 8
   num_workers: 2
   drop_last: True
 
@@ -96,7 +96,7 @@ val:
           size: [1024, 1024]
 #      to_tensor: [ ]
 #    class_num: 21
-  bs: 16
+  bs: 8
   num_workers: 2
   drop_last: True
 
