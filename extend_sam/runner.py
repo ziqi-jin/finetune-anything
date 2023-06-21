@@ -53,9 +53,8 @@ class SemRunner(BaseRunner):
         # train
         for iteration in range(cfg.max_iter):
             images, labels = train_iterator.get()
-            images, labels = images.cuda(), labels.cuda().squeeze(1).long()
+            images, labels = images.cuda(), labels.cuda().long()
             masks_pred, iou_pred = self.model(images)
-
             masks_pred = F.interpolate(masks_pred, self.original_size, mode="bilinear", align_corners=False)
 
             total_loss = torch.zeros(1).cuda()
