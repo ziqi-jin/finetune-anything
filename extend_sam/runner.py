@@ -79,9 +79,9 @@ class SemRunner(BaseRunner):
                     best_valid_mIoU = mIoU
                     save_model(self.model, model_path, parallel=self.the_number_of_gpu > 1)
                     print_and_save_log("saved model in {model_path}".format(model_path=model_path), path=log_path)
-                    log_data = {'mIoU': mIoU, 'best_valid_mIoU': best_valid_mIoU}
-                    write_log(iteration=iteration, log_path=log_path, log_data=log_data, status=self.exist_status[1],
-                              writer=writer, timer=self.eval_timer)
+                log_data = {'mIoU': mIoU, 'best_valid_mIoU': best_valid_mIoU}
+                write_log(iteration=iteration, log_path=log_path, log_data=log_data, status=self.exist_status[1],
+                          writer=writer, timer=self.eval_timer)
         # final process
         save_model(self.model, model_path, is_final=True, parallel=self.the_number_of_gpu > 1)
         if writer is not None:
