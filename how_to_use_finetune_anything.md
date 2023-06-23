@@ -14,7 +14,7 @@ CUDA_VISIBLE_DEVICES=${your GPU number} python train.py --cfg config/${yaml file
 ```
 ## Model
 The SAM model includes image encdoer, prompt encoder and mask decoder. FA further encapsulates the encoder and decoder of SAM and identify Extend-SAM model consists of image encoder adapter, prompt encoder adapter and mask decoder adapter. The initialized process of Extend-SAM as below,
-<img width="640" src="https://user-images.githubusercontent.com/67993288/248108534-62a4e5aa-cf4f-41f9-b745-db2924a376bc.svg">
+<img width="960" src="https://user-images.githubusercontent.com/67993288/248108534-62a4e5aa-cf4f-41f9-b745-db2924a376bc.svg">
 
 Users can choose the adapter that need to be fixed or learned during the finetune process. This function can be configured in the `model` part of the yaml file, as shown in the following example:
 
@@ -39,7 +39,7 @@ First, inherit the corresponding adapter base class in `extend_sam\xxx_(encoder 
 ```python
 class SemMaskDecoderAdapter(BaseMaskDecoderAdapter):
     def __init__(self, ori_sam: Sam, fix=False, class_num=20):
-        super(SemMaskDecoderAdapter, self).__init__(ori_sam, fix)
+        super(SemMaskDecoderAdapter, self).__init__(ori_sam, fix) # init super class
         self.decoder_neck = MaskDecoderNeck(...) # custom module
         self.decoder_head = SemSegHead(...) # custom module
         # pair the params between ori mask_decoder and new mask_decoder_adapter
@@ -58,8 +58,8 @@ First inherit the BaseExtendSAM base class in [extend_sam.py](https://github.com
 class SemanticSam(BaseExtendSam):
 
     def __init__(self, ...):
-        super().__init__(...)
-        self.mask_adapter = SemMaskDecoderAdapter(...) # new identified customized MaskDecoderAdapter.
+        super().__init__(...) # init super class
+        self.mask_adapter = SemMaskDecoderAdapter(...) # replace original Adapter as the  new identified customized Adapter 
 ```
 - step3
 
