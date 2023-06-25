@@ -101,6 +101,9 @@ for semantic segmentation task, if your loss function need a one hot label, set 
 If you want to customize the loss function, you can follow the following three steps,
 
 - step1
+
+    - Torch-supported Loss, skip this step.
+    
     - Torch-unsupported Loss
     
     Create it in [loss.py](https://github.com/ziqi-jin/finetune-anything/blob/main/losses/losses.py),  implement the `__init__` and `forward` function.
@@ -114,8 +117,6 @@ def forward(self, x, y, xxx):
     # identify your forward process here
 ```
     
-    - Torch-supported Loss
-    Skip this step.
     
 - step2
     Import torch-supported loss you want or torch-unsupported loss your identify in [losses/\_\_init\_\_,py](https://github.com/ziqi-jin/finetune-anything/blob/26b9ebd1b035a2f0ec8ce4e358eac79de7e263a2/losses/__init__.py#L2).
@@ -126,7 +127,6 @@ def forward(self, x, y, xxx):
 import torch.nn as nn
 from .losses import YourCuntomLoss
 AVAI_LOSS = {'your loss key': YourCuntomLoss, 'your loss key': nn.xxxLoss}
-
 ```
   
 - step3
