@@ -119,6 +119,7 @@ def forward(self, x, y, xxx):
     
     
 - step2
+
     Import torch-supported loss you want or torch-unsupported loss your identify in [losses/\_\_init\_\_,py](https://github.com/ziqi-jin/finetune-anything/blob/26b9ebd1b035a2f0ec8ce4e358eac79de7e263a2/losses/__init__.py#L2).
     Then add this loss into the AVAI_LOSS dict, give this loss a key like `ce`, and the value is the loss function.
     
