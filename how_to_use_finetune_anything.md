@@ -78,7 +78,7 @@ FA supports multiple torch loss functions, and also allows users to customize th
 losses:
     ce:
       weight: 0.5
-      params:  # ~ means None type, the initial params of loss could be identified here
+      params:  # the initial params of loss could be identified here
         ignore_index: 255
       label_one_hot: False
     mse:
@@ -86,19 +86,62 @@ losses:
       params: ~
       label_one_hot: True
 ```
-Now loss part has `weight`, `params`, and `label_one_hot` keys, `weight` control the weight of each loss in total loss. Assume the `ce` loss as $Loss_{ce}$ and the `mse` as $Loss_{mse}$, the final total loss as below,
+Now loss part has `weight`, `params`, and `label_one_hot` keys, `weight` control the weight of each loss in total loss. Take the config above as example, assume the `ce` loss as $Loss_{ce}$ and the `mse` as $Loss_{mse}$, the final total loss as below,
 
 $$
-Loss_total = weight_{ce} \times Loss_{ce} + weight_{mse} \times Loss_{mse} = 0.5 \times Loss_{ce} + 5 \times Loss_{mse}
+Loss_{total} = weight_{ce} \times Loss_{ce} + weight_{mse} \times Loss_{mse} = 0.5 \times Loss_{ce} + 5.0 \times Loss_{mse}
 $$
 
-The `params` which is a `dict` include the key and value your want to set about the corresponding loss function's parameters, make sure the loss function has a parameter with the same name as the key.
+The `params` which is a `dict` include the key and value your want to set about the corresponding loss function's parameters, make sure the loss function has a parameter with the same name as the key. if you don't need the set params, give params `~`.
 for semantic segmentation task, if your loss function need a one hot label, set the `label_one_hot` to `True`.
 
 
 ### Customized Losses
 
-if you want to identify your own loss, I recommend create it in [loss.py](https://github.com/ziqi-jin/finetune-anything/blob/main/losses/losses.py),  implement the `__init__` and `forward` function, then add it in the name_dict. you are welcome to submit PR for a customized loss. 
+If you want to customize the loss function, you can follow the following three steps,
+
+- step1
+    - Torch-unsupported Loss
+    
+    Create it in [loss.py](https://github.com/ziqi-jin/finetune-anything/blob/main/losses/losses.py),  implement the `__init__` and `forward` function.
+    
+    ```python
+    import torch.nn as nn
+    class CustormLoss(nn.Module):
+    def __init__(self,xxx):
+        # identify your init process here
+    def forward(self, x, y, xxx):
+        # identify your forward process here
+    ```
+    
+    - Torch-supported Loss
+    Skip this step.
+    
+- step2
+    Import torch-supported loss you want or torch-unsupported loss your identify in [losses/\_\_init\_\_,py](https://github.com/ziqi-jin/finetune-anything/blob/26b9ebd1b035a2f0ec8ce4e358eac79de7e263a2/losses/__init__.py#L2).
+    Then add this loss into the AVAI_LOSS dict, give this loss a key like `ce`, and the value is the loss function.
+    
+    ```python
+  
+    import torch.nn as nn
+    from .losses import YourCuntomLoss
+    AVAI_LOSS = {'your loss key': YourCuntomLoss, 'your loss key': nn.xxxLoss}
+  
+    ```
+  
+- step3
+    
+    Set the loss in your config file.
+    
+    ```yaml
+    losses:
+        your loss key:
+          weight: your weight (float)
+          params:  
+            your loss param1: xx
+            your loss param2: xx
+          label_one_hot: False
+    ```
 
 ## Optimizer
 
