@@ -13,6 +13,8 @@ CUDA_VISIBLE_DEVICES=${your GPU number} python train.py --task_name ${one of sup
 ```
 CUDA_VISIBLE_DEVICES=${your GPU number} python train.py --cfg config/${yaml file name}
 ```
+The testing part is coming soon ~
+
 ## Model
 The SAM model includes image encdoer, prompt encoder and mask decoder. FA further encapsulates the encoder and decoder of SAM and identify Extend-SAM model consists of image encoder adapter, prompt encoder adapter and mask decoder adapter. The initialized process of Extend-SAM as below,
 <img width="960" src="https://user-images.githubusercontent.com/67993288/248108534-62a4e5aa-cf4f-41f9-b745-db2924a376bc.svg">
@@ -66,9 +68,37 @@ class SemanticSam(BaseExtendSam):
 
 Add new Extend-SAM class to [AVAI_MODEL](https://github.com/ziqi-jin/finetune-anything/blob/350c1fbf7f122a8525e7ffdecc40f259b262983f/extend_sam/__init__.py#L10) dict and give it a key.
 then you can train this new model by modify the `sam_name` in config file.
+
 ## Datasets and Dataloader
 
 ## Losses
+
+FA supports multiple torch loss functions, and also allows users to customize the loss function. The configuration content of the loss function part is as below,
+```yaml
+losses:
+    ce:
+      weight: 0.5
+      params:  # ~ means None type, the initial params of loss could be identified here
+        ignore_index: 255
+      label_one_hot: False
+    mse:
+      weight: 5.0
+      params: ~
+      label_one_hot: True
+```
+Now loss part has `weight`, `params`, and `label_one_hot` keys, `weight` control the weight of each loss in total loss. Assume the `ce` loss as $Loss_{ce}$ and the `mse` as $Loss_{mse}$, the final total loss as below,
+
+$$
+Loss_total = weight_{ce} \times Loss_{ce} + weight_{mse} \times Loss_{mse} = 0.5 \times Loss_{ce} + 5 \times Loss_{mse}
+$$
+
+The `params` which is a `dict` include the key and value your want to set about the corresponding loss function's parameters, make sure the loss function has a parameter with the same name as the key.
+for semantic segmentation task, if your loss function need a one hot label, set the `label_one_hot` to `True`.
+
+
+### Customized Losses
+
+if you want to identify your own loss, I recommend create it in [loss.py](https://github.com/ziqi-jin/finetune-anything/blob/main/losses/losses.py),  implement the `__init__` and `forward` function, then add it in the name_dict. you are welcome to submit PR for a customized loss. 
 
 ## Optimizer
 
