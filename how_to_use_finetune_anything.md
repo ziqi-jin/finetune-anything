@@ -83,7 +83,7 @@ losses:
       label_one_hot: False
     mse:
       weight: 5.0
-      params: ~
+      params: ~ # no parameters, set '~'
       label_one_hot: True
 ```
 Now loss part has `weight`, `params`, and `label_one_hot` keys, `weight` control the weight of each loss in total loss. Take the config above as example, assume the `ce` loss as $Loss_{ce}$ and the `mse` as $Loss_{mse}$, the final total loss as below,
@@ -105,14 +105,14 @@ If you want to customize the loss function, you can follow the following three s
     
     Create it in [loss.py](https://github.com/ziqi-jin/finetune-anything/blob/main/losses/losses.py),  implement the `__init__` and `forward` function.
     
-    ```python
-    import torch.nn as nn
-    class CustormLoss(nn.Module):
-    def __init__(self,xxx):
-        # identify your init process here
-    def forward(self, x, y, xxx):
-        # identify your forward process here
-    ```
+```python
+import torch.nn as nn
+class CustormLoss(nn.Module):
+def __init__(self,xxx):
+    # identify your init process here
+def forward(self, x, y, xxx):
+    # identify your forward process here
+```
     
     - Torch-supported Loss
     Skip this step.
@@ -121,27 +121,27 @@ If you want to customize the loss function, you can follow the following three s
     Import torch-supported loss you want or torch-unsupported loss your identify in [losses/\_\_init\_\_,py](https://github.com/ziqi-jin/finetune-anything/blob/26b9ebd1b035a2f0ec8ce4e358eac79de7e263a2/losses/__init__.py#L2).
     Then add this loss into the AVAI_LOSS dict, give this loss a key like `ce`, and the value is the loss function.
     
-    ```python
-  
-    import torch.nn as nn
-    from .losses import YourCuntomLoss
-    AVAI_LOSS = {'your loss key': YourCuntomLoss, 'your loss key': nn.xxxLoss}
-  
-    ```
+```python
+
+import torch.nn as nn
+from .losses import YourCuntomLoss
+AVAI_LOSS = {'your loss key': YourCuntomLoss, 'your loss key': nn.xxxLoss}
+
+```
   
 - step3
     
     Set the loss in your config file.
     
-    ```yaml
-    losses:
-        your loss key:
-          weight: your weight (float)
-          params:  
-            your loss param1: xx
-            your loss param2: xx
-          label_one_hot: False
-    ```
+```yaml
+losses:
+    your_loss_key:
+      weight: your_weight # float
+      params:  
+        your_loss_param1: xx
+        your_loss_param2: xx
+      label_one_hot: False
+```
 
 ## Optimizer
 
