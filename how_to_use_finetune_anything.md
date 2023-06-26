@@ -1,9 +1,19 @@
 # How to use finetune-anything
 finetune-anything (FA) is intended as a tool to help users quickly build extended SAM models. It not only supports the built-in basic tasks and basic models, but also supports user-defined extensions of different modules, training processes, and datasets for the extend SAM.
 
+- Content
+    - [Structure](#Structure)
+    - [Model](#Model)
+    - [Datasets](#Datasets)
+    - [Losses](#Losses)
+    - [Optimizer](#Optimizer)
+    - [Logger](#Logger)
+    - [Others](#Others)
+    - [One more thing](#One-more-thing)
+
 
 ## Structure
-Using FA can be divided into two parts: training and testing. The training part includes [model](#Model), [Datasets](#Datasets-and-Dataloader), [Losses](#Losses), [Optimizer](#Optimizer), [Logger](#Logger), and [Others](#Others).
+Using FA can be divided into two parts: training and testing. The training part includes [model](#Model), [Datasets](#Datasets), [Losses](#Losses), [Optimizer](#Optimizer), [Logger](#Logger), and [Others](#Others).
 The above content needs to be configured through the yaml file in `config`. 
 - The tasks already supported by FA can be trained and tested directly by inputting `task_name`.
 ```
@@ -69,8 +79,78 @@ class SemanticSam(BaseExtendSam):
 Add new Extend-SAM class to [AVAI_MODEL](https://github.com/ziqi-jin/finetune-anything/blob/350c1fbf7f122a8525e7ffdecc40f259b262983f/extend_sam/__init__.py#L10) dict and give it a key.
 then you can train this new model by modify the `sam_name` in config file.
 
-## Datasets and Dataloader
+## Datasets
 
+FA comes with datasets for multiple tasks, and also supports custom datasets, and sets the training and test datasets separately. Takes `torch_voc_sem` as an example, the configuration file of the dataset part is as follows,
+The dataset part includes `name`, `params`, `transforms` and `target_transforms`,
+The `params` which is a `dict` include the key and value your want to set about the init function's parameters of corresponding dataset. make sure the dataset has parameters with the same names as the key.
+`transforms` and `target_transforms` respectively correspond to the input image and Ground Truth for transform processing.
+`transforms/target_transforms` support to set the implemented transform function and the corresponding `params`, `params` are still in the form of a `dict`, and transform will process the datasets according to the input order of the configuration file.
+```yaml
+  # Dataset
+  dataset:
+    name: 'torch_voc_sem'
+    params:
+      root: '/your/dataset/path/'
+      year: '2012'
+      image_set: 'train'
+    transforms:
+      resize:
+        params:
+          size: [1024, 1024]
+      to_tensor:
+        params: ~ # no parameters, set to '~'
+    target_transforms:
+      resize:
+        params:
+          size: [1024, 1024]
+```
+
+### Customized Dataset
+
+### Customized Transform
+
+If you want to customize the transform, you can follow the following three steps,
+
+- step1
+
+    - Torch-supported transform, skip this step.
+    
+    - Torch-unsupported transform
+    
+    Create it in [datasets/transforms.py](https://github.com/ziqi-jin/finetune-anything/blob/main/datasets/transforms.py),  implement the `__init__` and `forward` function.
+    
+```python
+import torch.nn as nn
+class CustomTransform(nn.Module):
+    def __init__(self):
+    # identify your init process here
+    def forward(self):
+    # identify your transform process here
+```
+    
+    
+- step2
+
+    Import torch-supported transform you want or torch-unsupported transform your identify in [datasets/transforms.py](https://github.com/ziqi-jin/finetune-anything/blob/main/datasets/transforms.py).
+    Then add this transform into the AVIAL_TRANSFORM  dict, give this loss a key like `resize`, and the value is the loss function.
+    
+```python
+import torchvision.transforms as T
+AVIAL_TRANSFORM = {'your_transform_name': T.XXX, 'your_transform_name': CustomTransform}
+```
+  
+- step3
+    
+    Set the loss in your config file.
+```yaml
+    transforms:
+      your_transform_name:
+        params: # if there are parameters of the transform's __init__ function to be set. else set to '~'
+          params_1: xxx
+          params_2: xxx
+```
+    
 ## Losses
 
 FA supports multiple torch loss functions, and also allows users to customize the loss function. The configuration content of the loss function part is as below,
@@ -92,7 +172,7 @@ $$
 Loss_{total} = weight_{ce} \times Loss_{ce} + weight_{mse} \times Loss_{mse} = 0.5 \times Loss_{ce} + 5.0 \times Loss_{mse}
 $$
 
-The `params` which is a `dict` include the key and value your want to set about the corresponding loss function's parameters, make sure the loss function has a parameter with the same name as the key. if you don't need the set params, give params `~`.
+The `params` which is a `dict` include the key and value your want to set about the corresponding loss function's parameters, make sure the loss function has parameters with the same names as the key. if you don't need the set params, give params `~`.
 for semantic segmentation task, if your loss function need a one hot label, set the `label_one_hot` to `True`.
 
 
@@ -149,3 +229,7 @@ losses:
 ## Logger
 
 ## Others
+
+## One more thing
+
+If you need to use loss, dataset, or other functions that are not supported by FA, please submit an issue, and I will help you to implement them. At the same time, developers are also welcome to develop new loss, dataset or other new functions for FA, please submit your PR(pull requests).

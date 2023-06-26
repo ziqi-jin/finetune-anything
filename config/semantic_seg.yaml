@@ -13,7 +13,7 @@ train:
       class_num: 21 # 20 + 1
       model_type: 'vit_b'    # type should be in [vit_h, vit_b, vit_l, default]
 
-  # Dataset and Dataloader
+  # Dataset
   dataset:
     name: 'torch_voc_sem'
     params:
@@ -39,14 +39,11 @@ train:
         ignore_index: 255
       label_one_hot: False
 #    mse:
-#      weight: 5.0
+#      weight: 1.0
 #      params: ~
 #      label_one_hot: True
-  # example
-  #    multi_label_soft_margin:
-  #      weight: 0.1
-  #      params: # ~ means None type, the initial params of loss could be identified here
-  #        reduction: none #
+
+
 
   # Optimizer
   opt_params:
@@ -77,7 +74,7 @@ train:
   drop_last: True
 
 val:
-  # Dataset and Dataloader
+  # Dataset
   dataset:
     name: 'torch_voc_sem'
     params:
@@ -94,8 +91,7 @@ val:
       resize:
         params:
           size: [1024, 1024]
-#      to_tensor: [ ]
-#    class_num: 21
+
   bs: 8
   num_workers: 2
   drop_last: True

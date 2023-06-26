@@ -1,5 +1,6 @@
 import torchvision.transforms as T
 from omegaconf.dictconfig import DictConfig
+import torch.nn as nn
 
 AVIAL_TRANSFORM = {'resize': T.Resize, 'to_tensor': T.ToTensor}
 
@@ -14,3 +15,11 @@ def get_transforms(transforms: DictConfig):
         else:
             T_list.append(AVIAL_TRANSFORM[t_name]())
     return T.Compose(T_list)
+
+
+class CustomTransform(nn.Module):
+    def __init__(self):
+        pass
+
+    def forward(self):
+        pass
