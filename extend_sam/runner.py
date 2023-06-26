@@ -121,7 +121,8 @@ class SemRunner(BaseRunner):
             # item -> (key: loss_name, val: loss)
             real_labels = labels
             if loss_cfg[item[0]].label_one_hot:
-                real_labels = one_hot_embedding_3d(real_labels)
+                class_num = cfg.model.params.class_num
+                real_labels = one_hot_embedding_3d(real_labels, class_num=class_num)
             tmp_loss = item[1](mask_pred, real_labels)
             loss_dict[item[0]] = tmp_loss.item()
             total_loss += loss_cfg[item[0]].weight * tmp_loss

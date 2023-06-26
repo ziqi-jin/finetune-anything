@@ -196,7 +196,7 @@ def write_log(iteration, log_path, log_data, status, writer, timer):
         if key == 'iteration':
             continue
         message += "{key} : {val}, ".format(key=key, val=value)
-    message = message[:-2] # + '\n'
+    message = message[:-2]  # + '\n'
     print_and_save_log(message, log_path)
     # visualize
     if writer is not None:
@@ -221,12 +221,14 @@ def check_folder(file_path, is_folder=False):
         if not osp.exists(folder_name):
             os.makedirs(folder_name)
 
-def one_hot_embedding_3d(labels, class_num=20):
+
+def one_hot_embedding_3d(labels, class_num=21):
     '''
 
     :param real_labels: B H W
     :param class_num: N
     :return: B N H W
     '''
-    return F.one_hot(labels, num_classes=class_num).permute(0, 3, 1, 2).contiguous().float()
-
+    one_hot_labels = labels.clone()
+    one_hot_labels[one_hot_labels == 255] = 0 # 0 is background
+    return F.one_hot(one_hot_labels, num_classes=class_num).permute(0, 3, 1, 2).contiguous().float()
