@@ -50,3 +50,6 @@ Modify the contents of yaml file for the specific task in **/config**, e.g., ckp
 CUDA_VISIBLE_DEVICES=${your GPU number} python train.py --task_name semantic_seg
 ```
 
+## One more thing
+
+If you need to use loss, dataset, or other functions that are not supported by FA, please submit an issue, and I will help you to implement them. At the same time, developers are also welcome to develop new loss, dataset or other new functions for FA, please submit your PR (pull requests).
