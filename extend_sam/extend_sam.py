@@ -1,7 +1,7 @@
 # copyright ziqi-jin
 import torch
 import torch.nn as nn
-from segment_anything import sam_model_registry
+from .segment_anything_ori import sam_model_registry
 from .image_encoder_adapter import BaseImgEncodeAdapter
 from .mask_decoder_adapter import BaseMaskDecoderAdapter, SemMaskDecoderAdapter
 from .prompt_encoder_adapter import BasePromptEncodeAdapter
