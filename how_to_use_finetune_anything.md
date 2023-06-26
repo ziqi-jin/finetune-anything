@@ -133,7 +133,7 @@ class CustomTransform(nn.Module):
 - step2
 
     Import torch-supported transform you want or torch-unsupported transform your identify in [datasets/transforms.py](https://github.com/ziqi-jin/finetune-anything/blob/main/datasets/transforms.py).
-    Then add this transform into the AVIAL_TRANSFORM  dict, give this loss a key like `resize`, and the value is the loss function.
+    Then add this transform into the AVIAL_TRANSFORM  dict, give this transform a key like `resize`, and the value is the transform class.
     
 ```python
 import torchvision.transforms as T
