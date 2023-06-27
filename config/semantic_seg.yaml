@@ -38,40 +38,32 @@ train:
       params:  # ~ means None type, the initial params of loss could be identified here
         ignore_index: 255
       label_one_hot: False
-#    mse:
-#      weight: 1.0
-#      params: ~
-#      label_one_hot: True
-
-
 
   # Optimizer
   opt_params:
-#    lr_default: 5e-6 # 1e-3
     lr_default:  1e-3
     wd_default: 1e-4
     momentum: 0.9
     lr_list:  [ 1e-2, ]
-#    lr_list: [5e-6, ] # [ 1e-2, ]
-
     group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], ]
     wd_list:  [ 0.0 ]
-#    wd_list: [1e-4] # [ 0.0 ]
-  scheduler_name: 'cosine'
   opt_name: 'sgd' # 'sgd'
+  scheduler_name: 'cosine'
+
+  # Runner
+  max_iter: 100000
+  log_iter: 20
+  eval_iter: 200
+  runner_name: 'sem_runner'
+  # Dataloader
+  bs: 8 # 8
+  num_workers: 2
+  drop_last: True
   # Logger
   use_tensorboard: True
   tensorboard_folder: './experiment/tensorboard'
   log_folder: './experiment/log'
   model_folder: './experiment/model'
-  # Others
-  max_iter: 100000
-  log_iter: 20
-  eval_iter: 200
-  runner_name: 'sem_runner'
-  bs: 8 # 8
-  num_workers: 2
-  drop_last: True
 
 val:
   # Dataset

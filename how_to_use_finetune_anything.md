@@ -7,13 +7,13 @@ finetune-anything (FA) is intended as a tool to help users quickly build extende
     - [Datasets](#Datasets)
     - [Losses](#Losses)
     - [Optimizer](#Optimizer)
+    - [Runner](#Runner)
     - [Logger](#Logger)
-    - [Others](#Others)
     - [One more thing](#One-more-thing)
 
 
 ## Structure
-Using FA can be divided into two parts: training and testing. The training part includes [model](#Model), [Datasets](#Datasets), [Losses](#Losses), [Optimizer](#Optimizer), [Logger](#Logger), and [Others](#Others).
+Using FA can be divided into two parts: training and testing. The training part includes [model](#Model), [Datasets](#Datasets), [Losses](#Losses), [Optimizer](#Optimizer), [Logger](#Logger), and [Runner](#Runner).
 The above content needs to be configured through the yaml file in `config`. 
 - The tasks already supported by FA can be trained and tested directly by inputting `task_name`.
 ```
@@ -225,10 +225,43 @@ losses:
 ```
 
 ## Optimizer
+FA's optimizer supports setting learning_rate(`lr`) and weight_decay(`wd`) for any module in the adapter that is not fixed.
+User could use keyword `sgd`, `adam`, and `adamw` to set the optimizer. the `opt_params` save necessary params for each kind of optimizer.
+- Normal module setting
+
+`lr_default` save the default learing rate for all unfixed params, `wd_default` save the default weight decay for all unfixed params, 
+`momentum` save the momentum for optimizer. if the corresponding optimizer has no parameter, e.g., `adam` has no `momentum`, just set the `momentum` to `~`.
+- Specific module setting
+
+The left three params `group_keys`, `lr_list` and `wd_list` is for specific module.
+They are list have the same length and correspond to the module name, learning rate and weight decay respectively. 
+for example, if you want to give `mask_adapter.decoder_head.output_hypernetworks_mlps` module a specific optimizing parameter, put it into `group_keys` as a list first, and then set the corresponding learning rate and weight decay into `lr_list` and `wd_list`.
+If there are multiple modules that need to use the same specific parameter setting, just add the key to the corresponding list in the `group_keys`. For example, add `modulexxx` to the first list of `group_keys`.
+```yaml
+  # Optimizer
+  opt_params:
+    lr_default:  1e-3
+    wd_default: 1e-4
+    momentum: 0.9
+    group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', 'modulexxx' ], ['second_module'], ]
+    lr_list:  [ 1e-2, 1e-4, ]
+    wd_list:  [ 0.0, 0.1, ]
+  opt_name: 'sgd' # 'sgd'
+  scheduler_name: 'cosine'
+```
+FA also supports multiple schedulers, which can be set using the keyword `single_step`, `multi_step`, `warmup_multi_step`, `cosine`, `linear`.
+## Runner
 
 ## Logger
-
-## Others
+As shown in the config file, FA provides two kinds of loggers, one is the log output by default and will be saved in `log_folder`, and the other is the log output of tensorboard saved in `tensorboard_folder` when `use_tensorboard` is `True`.
+The best model will be saved in `model_folder`.
+```yaml
+  # Logger
+  use_tensorboard: True
+  tensorboard_folder: './experiment/tensorboard'
+  log_folder: './experiment/log'
+  model_folder: './experiment/model'
+```
 
 ## One more thing
 
