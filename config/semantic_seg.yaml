@@ -46,7 +46,7 @@ train:
     momentum: 0.9
     lr_list:  [ 1e-2, ]
     group_keys: [ [ 'mask_adapter.decoder_head.output_hypernetworks_mlps', ], ]
-    wd_list:  [ 0.0 ]
+    wd_list:  [ 0.0, ]
   opt_name: 'sgd' # 'sgd'
   scheduler_name: 'cosine'
 
