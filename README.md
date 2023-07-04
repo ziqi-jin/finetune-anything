@@ -29,6 +29,14 @@ For example, MaskDecoder is encapsulated as MaskDecoderAdapter. The current Mask
 ## Deploy
 - [ ] Onnx export
 
+## Support Plan
+FA will be updated in the following order,
+
+- Mattng (task)
+- Prompt Part (structure)
+- [MobileSAM](https://github.com/ChaoningZhang/MobileSAM) (model)
+- Instance Segmentation (task)
+
 # Usage
 finetune-anything(FA) supports the entire training process of SAM model fine-tuning, including the modification of the model structure, as well as the model training, verification, and testing processes. For details, check the [How_to_use](https://github.com/ziqi-jin/finetune-anything/blob/main/how_to_use_finetune_anything.md), the [Quick Start](#Quick-Start) gives an example of quickly using FA to train a custom semantic segmentation model.
 ## Quick Start
