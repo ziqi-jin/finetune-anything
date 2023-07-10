@@ -11,7 +11,7 @@ Finetune-Anything further encapsulates the three parts of the original SAM, i.e.
 check details in [How_to_use](https://github.com/ziqi-jin/finetune-anything/blob/main/how_to_use_finetune_anything.md).
 For example, MaskDecoder is encapsulated as MaskDecoderAdapter. The current MaskDecoderAdatper contains two parts, DecoderNeck and DecoderHead.
 
-<img width="640" src="https://user-images.githubusercontent.com/67993288/244574810-db9a50ad-4082-4647-8b91-7a261f5aad40.svg">
+<img width="640" style="display: block; margin: auto;" src="https://user-images.githubusercontent.com/67993288/244574810-db9a50ad-4082-4647-8b91-7a261f5aad40.svg">
 
 ## Supported Tasks
 - [x] Semantic Segmentation
